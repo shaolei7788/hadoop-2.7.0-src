@@ -768,6 +768,8 @@ class BPServiceActor implements Runnable {
             }
           }
         }
+        // 如果标志位sendImmediateIBR为true，或者数据块增量汇报时间已到，
+        // 数据块增量汇报时间间隔是心跳时间间隔的100倍，默认情况下是5分钟
         if (sendImmediateIBR || (startTime - lastDeletedReport > dnConf.deleteReportInterval)) {
             //发送数据库增量汇报：包括正在接收的、已接收的和已删除的数据块
             reportReceivedDeletedBlocks();
