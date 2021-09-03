@@ -778,7 +778,6 @@ class BPServiceActor implements Runnable {
         //周期性进行数据块汇报，并处理返回的相关命令
         List<DatanodeCommand> cmds = blockReport();
         processCommand(cmds == null ? null : cmds.toArray(new DatanodeCommand[cmds.size()]));
-
         DatanodeCommand cmd = cacheReport();
         processCommand(new DatanodeCommand[]{ cmd });
 
