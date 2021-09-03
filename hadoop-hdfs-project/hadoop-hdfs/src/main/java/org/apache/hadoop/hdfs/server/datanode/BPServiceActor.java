@@ -235,25 +235,26 @@ class BPServiceActor implements Runnable {
   }
 
   private void connectToNNAndHandshake() throws IOException {
-    //TODO 获取到namenode的代理
-    //RPC的客户端
-    //datanode(  获取到了代理 ->(hostname ,port) namenode
+    //TODO 获得NameNode的代理bpNamenode
+    // RPC的客户端
+    // dn = DataNode
     bpNamenode = dn.connectToNN(nnAddr);
 
-    // First phase of the handshake with NN - get the namespace
-    // info.
+    // First phase of the handshake with NN - get the namespace info.
     //hadoop1(datanode) ->  hadoop2 hadoop3(namenode)
+    // 与NameNode握手第一阶段：获取命名空间信息
     NamespaceInfo nsInfo = retrieveNamespaceInfo();
     
     // Verify that this matches the other NN in this HA pair.
     // This also initializes our block pool in the DN if we are
     // the first NN connection for this BP.
-    //TODO 校验NamespaceInfo的信息。
+    //TODO // 验证，并设置命名空间信息()
     // datanode  -> HA()
     bpos.verifyAndSetNamespaceInfo(nsInfo);
     
     // Second phase of the handshake with the NN.
     //TODO 注册
+    // 与NameNode握手第二阶段，注册
     register(nsInfo);
   }
 
@@ -767,12 +768,12 @@ class BPServiceActor implements Runnable {
             }
           }
         }
-        if (sendImmediateIBR ||
-            (startTime - lastDeletedReport > dnConf.deleteReportInterval)) {
-          reportReceivedDeletedBlocks();
-          lastDeletedReport = startTime;
+        if (sendImmediateIBR || (startTime - lastDeletedReport > dnConf.deleteReportInterval)) {
+            //发送数据库增量汇报：包括正在接收的、已接收的和已删除的数据块
+            reportReceivedDeletedBlocks();
+            lastDeletedReport = startTime;
         }
-
+        //周期性进行数据块汇报，并处理返回的相关命令
         List<DatanodeCommand> cmds = blockReport();
         processCommand(cmds == null ? null : cmds.toArray(new DatanodeCommand[cmds.size()]));
 
@@ -893,17 +894,19 @@ class BPServiceActor implements Runnable {
         // init stuff
         try {
           //TODO 注册核心代码
-          //这个方法比较重要，我们尽量保证能完成。
+          // 这个方法比较重要，我们尽量保证能完成。
+          // 完成与NameNode的连接并进行两次握手
           connectToNNAndHandshake();
           break;
         } catch (IOException ioe) {
           // Initial handshake, storage recovery or registration failed
           runningState = RunningState.INIT_FAILED;
+          // 调用shouldRetryInit()方法判断初始化失败时是否可以重试
           if (shouldRetryInit()) {
             // Retry until all namenode's of BPOS failed initialization
-            LOG.error("Initialization failed for " + this + " "
-                + ioe.getLocalizedMessage());
+            LOG.error("Initialization failed for " + this + " " + ioe.getLocalizedMessage());
             //TODO 如果有问题sleep 5秒
+            // 线程休眠5s，并记录info日志信息，之后再进入循环重复执行之前的操作
             sleepAndLogInterrupts(5000, "initializing");
           } else {
             runningState = RunningState.FAILED;
@@ -913,7 +916,9 @@ class BPServiceActor implements Runnable {
         }
       }
       //注册结束了
-
+      // 进入另一个while循环，不停的调用offerService()方法，
+      // 发送心跳给NameNode并接收来自NameNode，然后根据命令交给不同的组件去处理
+      // 循环的条件就是该线程的标志位shouldServiceRun为true，且dataNode的shouldRun()返回true
       runningState = RunningState.RUNNING;
       while (shouldRun()) {
         try {
