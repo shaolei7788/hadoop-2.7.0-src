@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="0af922cd-7552-4af1-a838-1cdd85773519" name="Default" comment="" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CodeStyleSettingsInfer">
+    <option name="done" value="true" />
+  </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="localRepository" value="D:\apache-maven-3.3.9\repository" />
+        <option name="mavenHome" value="D:/apache-maven-3.3.9" />
+        <option name="userSettingsFile" value="D:\apache-maven-3.3.9\conf\settings.xml" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectCodeStyleSettingsMigration">
+    <option name="version" value="1" />
+  </component>
+  <component name="ProjectId" id="1bQJiFwy6rJKFS9gL8OuJBOzI8i" />
+  <component name="PropertiesComponent">
+    <property name="SearchEverywhereHistoryKey" value="registerDatanode&#9;PSI&#9;JAVA://org.apache.hadoop.hdfs.server.namenode.FSNamesystem#registerDatanode&#10;registerDa&#9;PSI&#9;JAVA://org.apache.hadoop.hdfs.server.blockmanagement.DatanodeManager#registerDatanode" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="go.import.settings.migrated" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../bigdatahadoop" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="MavenSettings" />
+  </component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="mvn clean package -Pdist,native -DskipTests -Dtar" />
+    </option>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="Application" factoryName="Application">
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="JUnit" factoryName="JUnit">
+      <option name="TEST_OBJECT" value="class" />
+      <option name="WORKING_DIRECTORY" value="%MODULE_WORKING_DIR%" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="TestNG">
+      <option name="TEST_OBJECT" value="CLASS" />
+      <option name="WORKING_DIRECTORY" value="%MODULE_WORKING_DIR%" />
+      <properties />
+      <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SbtLocalSettings">
+    <option name="projectSyncType">
+      <map>
+        <entry key="D:/../工作记录/201807月/0713/kafka-manager-master" value="PREVIEW" />
+        <entry key="D:/xiangmu/dr-elephant-master" value="PREVIEW" />
+      </map>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0af922cd-7552-4af1-a838-1cdd85773519" name="Default" comment="" />
+      <created>1563718436936</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1563718436936</updated>
+      <workItem from="1563718441482" duration="726000" />
+      <workItem from="1563760743342" duration="50384000" />
+      <workItem from="1564068889833" duration="381000" />
+      <workItem from="1564107621189" duration="385000" />
+      <workItem from="1564122006022" duration="5269000" />
+      <workItem from="1564300481422" duration="16511000" />
+      <workItem from="1564559278033" duration="12315000" />
+      <workItem from="1564820573025" duration="11034000" />
+      <workItem from="1565006229437" duration="98000" />
+      <workItem from="1565006590387" duration="10776000" />
+      <workItem from="1565177228884" duration="5955000" />
+      <workItem from="1565623501750" duration="57000" />
+      <workItem from="1620271146870" duration="9116000" />
+      <workItem from="1620367193881" duration="5056000" />
+      <workItem from="1620372328946" duration="8078000" />
+      <workItem from="1620438174258" duration="700000" />
+      <workItem from="1630395565730" duration="6349000" />
+      <workItem from="1630461493060" duration="6056000" />
+      <workItem from="1630482752634" duration="5127000" />
+      <workItem from="1630545224919" duration="14887000" />
+      <workItem from="1630631413715" duration="12435000" />
+      <workItem from="1630653437237" duration="5424000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+</project>
