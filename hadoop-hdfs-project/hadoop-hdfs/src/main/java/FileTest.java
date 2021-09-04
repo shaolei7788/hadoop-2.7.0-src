@@ -13,7 +13,6 @@ public class FileTest {
 		Configuration configuration = new Configuration();
 		FileSystem fileSystem = FileSystem.newInstance(configuration);
 		//场景驱动的方式（元数据的更新流程）
-
 		fileSystem.mkdirs(new Path("/usr/hive/warehouse/test/mydata"));
 		/**
 		 *  Namenode namenode=new Namenode(conf)
