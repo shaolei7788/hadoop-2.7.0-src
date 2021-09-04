@@ -386,8 +386,7 @@ public class DistributedFileSystem extends FileSystem {
       Progressable progress) throws IOException {
     //TODO 重要
     return this.create(f, permission,
-        overwrite ? EnumSet.of(CreateFlag.CREATE, CreateFlag.OVERWRITE)
-            : EnumSet.of(CreateFlag.CREATE), bufferSize, replication,
+        overwrite ? EnumSet.of(CreateFlag.CREATE, CreateFlag.OVERWRITE) : EnumSet.of(CreateFlag.CREATE), bufferSize, replication,
         blockSize, progress, null);
   }
 
@@ -453,6 +452,7 @@ public class DistributedFileSystem extends FileSystem {
     final EnumSet<CreateFlag> cflags, final int bufferSize,
     final short replication, final long blockSize, final Progressable progress,
     final ChecksumOpt checksumOpt) throws IOException {
+
     statistics.incrementWriteOps(1);
     Path absF = fixRelativePart(f);
     return new FileSystemLinkResolver<FSDataOutputStream>() {
@@ -464,11 +464,13 @@ public class DistributedFileSystem extends FileSystem {
          *  * 1） 往文件目录树里面添加了INodeFile
          *  * 2） 添加了契约管理
          *  * 3） 启动了DataStreamer（写数据流程的关键服务）
+         *  dfs = DFSClient
          */
         final DFSOutputStream dfsos = dfs.create(getPathName(p), permission,
                 cflags, replication, blockSize, progress, bufferSize,
                 checksumOpt);
         //TODO FSDataOutputStream 是DFSOutputStream 进行了再一次的封装。【装饰模式】
+        // return impl   HdfsDataOutputStream
         return dfs.createWrappedOutputStream(dfsos, statistics);
       }
       @Override

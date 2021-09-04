@@ -98,7 +98,7 @@ import static org.apache.hadoop.util.Time.now;
  * In contrast 相反的意思
  *   hadoop fs -ls /
  * 
- * FSDirectory 和FSNamesytem 都是管理命名空间的状态（管理元数据的）
+ * FSDirectory 和 FSNamesytem 都是管理命名空间的状态（管理元数据的）
  * 1 FSDirectory 是一个直接在内存里面的数据结构，其实就是内存目录树
  * 2 FSNamesystem 是把我们的元数据记录信息是持久化到磁盘上面的（先写到内存，再写到磁盘）
  *   /

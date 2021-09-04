@@ -216,13 +216,13 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 	// Datanodes. Every packet has a sequence number associated with
 	// it. When all the packets for a block are sent out and acks for each
 	// if them are received, the DataStreamer closes the current block.
-	   //TODO 类注释
-	   //DataStreamer的服务主要是用来处理接收数据管道里面的数据.
-	   //他会向NameNode申请新的block，namenode返回来的时候，会返回来关于block的blockid和
-	   //block对应的DataNode的信息
-	  // 启动了这个服务器以后，它会接收packet流的。
-	   // 每个packet 都是有序列号的，当这个服务器接收到一个完整的block（packet）时候，就会返回响应
-	   //并且关闭当前的DataStreamer
+   //TODO 类注释
+   //DataStreamer的服务主要是用来处理接收数据管道里面的数据.
+   //他会向NameNode申请新的block，namenode返回来的时候，会返回来关于block的blockid和
+   //block对应的DataNode的信息
+   // 启动了这个服务器以后，它会接收packet流的。
+   // 每个packet 都是有序列号的，当这个服务器接收到一个完整的block（packet）时候，就会返回响应
+   //并且关闭当前的DataStreamer
 	class DataStreamer extends Daemon {
 		private volatile boolean streamerClosed = false;
 		private ExtendedBlock block; // its length is number of bytes acked
@@ -403,7 +403,6 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 						//这个时候代码是可以运行到这儿的
 						doSleep = processDatanodeError();
 					}
-
 					synchronized (dataQueue) {
 						// wait for a packet to be sent.
 						long now = Time.monotonicNow();
@@ -1267,8 +1266,6 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 			     * 1) 创建了一个block，往文件目录树里面挂载了block的信息
 			     * 2）在磁盘上面记录了元数据信息
 			     * 3）在BLockMananger里面记录了block的元数据信息
-			     * 
-			     *
 			     */
 				lb = locateFollowingBlock(excluded.length > 0 ? excluded : null);
 				block = lb.getBlock();
@@ -1277,7 +1274,6 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 				accessToken = lb.getBlockToken();
 				nodes = lb.getLocations();
 				storageTypes = lb.getStorageTypes();
-
 				//
 				// Connect to first DataNode in the list.
 				// TODO 其实HDFS管道的建立就是靠的这段代码完成的。
@@ -1666,7 +1662,6 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 			boolean shouldRetry = true;
 			// 10次
 			int retryCount = CREATE_RETRY_COUNT;
-			
 			//TODO 重试的代码结构
 			while (shouldRetry) {
 				shouldRetry = false;

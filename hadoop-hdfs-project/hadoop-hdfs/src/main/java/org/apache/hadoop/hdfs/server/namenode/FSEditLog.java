@@ -436,15 +436,15 @@ public class FSEditLog implements LogsPurgeable {
       long start = beginTransaction();
       op.setTransactionId(txid);
       try {
-    	  /**
-    	   * 1)  namenode editlog 文件缓冲里面
-    	   * 2） journalnode的内存缓冲
-           * JournalSetOutputStream
-           *
-           * //TODO QuorumJournalManager  QuorumOutputStream
-           * //TODO FileJournalManager EditLogFileOutputStream
-    	   */
-    	  //TODO 步骤二：把元数据写入到内存缓冲
+        /**
+        * 1)  namenode editlog 文件缓冲里面
+        * 2） journalnode的内存缓冲
+        * JournalSetOutputStream
+        *
+        * //TODO QuorumJournalManager  QuorumOutputStream
+        * //TODO FileJournalManager EditLogFileOutputStream
+        */
+        //TODO 步骤二：把元数据写入到内存缓冲
         // 这儿的代码写得很晦涩。
         // EditLogFileOutputStream#write
         //本地：FileJouranlManager   -> EditLogFileOutputStream
@@ -457,7 +457,6 @@ public class FSEditLog implements LogsPurgeable {
       }
 
       endTransaction(start);
-      
       // check if it is time to schedule an automatic sync
       // 看当前的内存大小是否 >= 512kb = true
       // !true = false
@@ -640,7 +639,6 @@ public class FSEditLog implements LogsPurgeable {
           syncStart = txid;
           isSyncRunning = true;
           sync = true;
-  
           // swap buffers
           try {
             if (journalSet.isEmpty()) {
@@ -685,8 +683,7 @@ public class FSEditLog implements LogsPurgeable {
       } catch (IOException ex) {
         synchronized (this) {
           //打印日志
-          final String msg =
-              "Could not sync enough journals to persistent storage. " + "Unsynced transactions: " + (txid - synctxid);
+          final String msg = "Could not sync enough journals to persistent storage. " + "Unsynced transactions: " + (txid - synctxid);
           //如果我们的程序里面发生了fatal 级别日志，这个错误
           //就是灾难型的错误。
           LOG.fatal(msg, new Exception());

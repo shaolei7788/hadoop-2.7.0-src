@@ -217,8 +217,7 @@ public class FSEditLogLoader {
             in.resync();
             continue;
           }
-          recentOpcodeOffsets[(int)(numEdits % recentOpcodeOffsets.length)] =
-            in.getPosition();
+          recentOpcodeOffsets[(int)(numEdits % recentOpcodeOffsets.length)] = in.getPosition();
           if (op.hasTransactionId()) {
             if (op.getTransactionId() > expectedTxId) { 
               MetaRecoveryContext.editLogLoaderPrompt("There appears " +

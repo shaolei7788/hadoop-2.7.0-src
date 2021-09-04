@@ -215,11 +215,12 @@ public class EditLogTailer {
       }
       Collection<EditLogInputStream> streams;
       try {
-    	  //这个地方是重要的代码
-    	  //需要去journlanode上面去读取元数据
-    	  //现在的事务id 1000，所以我去journlanode上面去读取
-    	  //日志的时候，只需要去读取 1001后面的日志就可以。
+    	  //todo 这个地方是重要的代码
+    	  // 需要去journlanode上面去读取元数据
+    	  // 现在的事务id 1000，所以我去journlanode上面去读取
+    	  // 日志的时候，只需要去读取 1001后面的日志就可以。
         //TODO 设置获取Journalnode获取日志的流
+        // editLog = FSEditLog
         streams = editLog.selectInputStreams(lastTxnId + 1, 0, null, false);
       } catch (IOException ioe) {
         // This is acceptable. If we try to tail edits in the middle of an edits

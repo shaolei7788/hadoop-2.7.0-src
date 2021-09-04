@@ -231,24 +231,17 @@ class NameNodeRpcServer implements NamenodeProtocols {
     
     //客户端调用namenode的那些方法，都在这个协议里面。
     //Client向NameNode发送RPC请求时的PB翻译器，将客户端请求翻译为具体的操作，如mkdir、delete、rename请求等
-    ClientNamenodeProtocolServerSideTranslatorPB 
-       clientProtocolServerTranslator = 
-         new ClientNamenodeProtocolServerSideTranslatorPB(this);
-     BlockingService clientNNPbService = ClientNamenodeProtocol.
-         newReflectiveBlockingService(clientProtocolServerTranslator);
+    ClientNamenodeProtocolServerSideTranslatorPB clientProtocolServerTranslator = new ClientNamenodeProtocolServerSideTranslatorPB(this);
+     BlockingService clientNNPbService = ClientNamenodeProtocol.newReflectiveBlockingService(clientProtocolServerTranslator);
 
     //datanode之间需要互相调用的协议。
     // DataNode和NameNode之间RPC请求翻译器，DataNode请求有heartbeat、blockReport等
-    DatanodeProtocolServerSideTranslatorPB dnProtoPbTranslator = 
-        new DatanodeProtocolServerSideTranslatorPB(this);
-    BlockingService dnProtoPbService = DatanodeProtocolService
-        .newReflectiveBlockingService(dnProtoPbTranslator);
+    DatanodeProtocolServerSideTranslatorPB dnProtoPbTranslator = new DatanodeProtocolServerSideTranslatorPB(this);
+    BlockingService dnProtoPbService = DatanodeProtocolService.newReflectiveBlockingService(dnProtoPbTranslator);
     //namenode之间互相调用的协议
     // NameNode自身的一些RPC请求翻译器，如getBlock、startCheckpoint、rollEdit等请求
-    NamenodeProtocolServerSideTranslatorPB namenodeProtocolXlator = 
-        new NamenodeProtocolServerSideTranslatorPB(this);
-    BlockingService NNPbService = NamenodeProtocolService
-          .newReflectiveBlockingService(namenodeProtocolXlator);
+    NamenodeProtocolServerSideTranslatorPB namenodeProtocolXlator = new NamenodeProtocolServerSideTranslatorPB(this);
+    BlockingService NNPbService = NamenodeProtocolService.newReflectiveBlockingService(namenodeProtocolXlator);
     // ACL刷新RPC翻译
     RefreshAuthorizationPolicyProtocolServerSideTranslatorPB refreshAuthPolicyXlator = 
         new RefreshAuthorizationPolicyProtocolServerSideTranslatorPB(this);
@@ -970,21 +963,20 @@ class NameNodeRpcServer implements NamenodeProtocols {
     return (src.length() <= MAX_PATH_LENGTH &&
             srcPath.depth() <= MAX_PATH_DEPTH);
   }
-    
-  @Override // ClientProtocol
+
+  // ClientProtocol
+  @Override
   public boolean mkdirs(String src, FsPermission masked, boolean createParent)
       throws IOException {
     checkNNStartup();
     if(stateChangeLog.isDebugEnabled()) {
-      stateChangeLog.debug("*DIR* NameNode.mkdirs: " + src);
+       stateChangeLog.debug("*DIR* NameNode.mkdirs: " + src);
     }
     if (!checkPathLength(src)) {
-      throw new IOException("mkdirs: Pathname too long.  Limit " 
-                            + MAX_PATH_LENGTH + " characters, " + MAX_PATH_DEPTH + " levels.");
+       throw new IOException("mkdirs: Pathname too long.  Limit " + MAX_PATH_LENGTH + " characters, " + MAX_PATH_DEPTH + " levels.");
     }
     //TODO namesystem = FSNamesystem 调用FSNameSystem创建目录的方法
-    return namesystem.mkdirs(src,
-        new PermissionStatus(getRemoteUser().getShortUserName(), null, masked), createParent);
+    return namesystem.mkdirs(src, new PermissionStatus(getRemoteUser().getShortUserName(), null, masked), createParent);
   }
 
   @Override // ClientProtocol

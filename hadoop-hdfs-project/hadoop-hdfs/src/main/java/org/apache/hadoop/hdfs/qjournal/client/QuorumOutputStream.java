@@ -101,6 +101,7 @@ class QuorumOutputStream extends EditLogOutputStream {
       byte[] data = bufToSend.getData();
       assert data.length == bufToSend.getLength();
       //把数据写入到journlanode
+      // loggers = AsyncLoggerSet
       QuorumCall<AsyncLogger, Void> qcall = loggers.sendEdits(
           segmentTxId, firstTxToFlush, numReadyTxns, data);
       //TODO  这里会因为fullGC 导致namenode异常退出 这是一个阻塞的方法等待写入到journalnode集群处理结果

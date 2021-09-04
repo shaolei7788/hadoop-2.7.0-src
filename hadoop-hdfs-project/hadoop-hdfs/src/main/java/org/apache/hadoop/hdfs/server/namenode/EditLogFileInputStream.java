@@ -138,9 +138,8 @@ public class EditLogFileInputStream extends EditLogInputStream {
     Preconditions.checkState(state == State.UNINIT);
     BufferedInputStream bin = null;
     try {
-    	//TODO FStream
-      //这个log是URLLog
-      //所以找URLlog的getInpustream()的方法
+      //TODO FStream
+      // log = URLLog 核心 里面有连接journalnode的连接
       fStream = log.getInputStream();
       //TODO bin
       bin = new BufferedInputStream(fStream);
@@ -479,8 +478,7 @@ public class EditLogFileInputStream extends EditLogInputStream {
             	  //DataNode:  RpcServer   Httpserver
             	  //JournalNode: JournalnodeRpcServer JournalnodeHttpserver
                 //TODO 真相大白，我们创建了一个HttpURLConnection对象
-                connection = (HttpURLConnection)
-                    connectionFactory.openConnection(url, isSpnegoEnabled);
+                connection = (HttpURLConnection) connectionFactory.openConnection(url, isSpnegoEnabled);
               } catch (AuthenticationException e) {
                 throw new IOException(e);
               }

@@ -64,6 +64,8 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  * 他会周期性的对命名空间做checkpoint的操作（说白了就是把 内存里面目录树的信息持久化到磁盘上面）
  * 并且会把这个份数据上传到active namenode(用来替换 active namednoe上面的fsimage)
  *
+ * checkpoint的目的是什么？
+ * fsimage存放上次checkpoint生成的文件系统元数据，Edits存放文件系统操作日志。checkpoint的过程，就是合并fsimage和Edits文件，然后生成最新的fsimage的过程
  *
  */
 @InterfaceAudience.Private

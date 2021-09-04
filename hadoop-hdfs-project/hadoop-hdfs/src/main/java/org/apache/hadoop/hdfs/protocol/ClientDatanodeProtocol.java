@@ -40,6 +40,11 @@ import org.apache.hadoop.security.token.TokenInfo;
 @KerberosInfo(
     serverPrincipal = DFSConfigKeys.DFS_DATANODE_KERBEROS_PRINCIPAL_KEY)
 @TokenInfo(BlockTokenSelector.class)
+/**
+ * 客户端与数据节点间的接口
+ * 该接口的方法主要是用户客户端读取数据节点信息时调用
+ * 而真正的数据读写交互则是通过流式接口进行的 (http)
+ */
 public interface ClientDatanodeProtocol {
   /**
    * Until version 9, this class ClientDatanodeProtocol served as both

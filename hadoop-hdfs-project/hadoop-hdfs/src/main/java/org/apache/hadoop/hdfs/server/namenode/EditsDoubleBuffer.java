@@ -87,7 +87,7 @@ public class EditsDoubleBuffer {
    */
   public void flushTo(OutputStream out) throws IOException {
     bufReady.writeTo(out); // write data to file
-    bufReady.reset(); // erase all data in the buffer
+    bufReady.reset(); // erase 清除 erase all data in the buffer
   }
   
   public boolean shouldForceSync() {

@@ -41,6 +41,9 @@ import org.apache.hadoop.security.KerberosInfo;
     serverPrincipal = DFSConfigKeys.DFS_NAMENODE_KERBEROS_PRINCIPAL_KEY, 
     clientPrincipal = DFSConfigKeys.DFS_DATANODE_KERBEROS_PRINCIPAL_KEY)
 @InterfaceAudience.Private
+/**
+ * datanode 与namenode 通信的协议
+ */
 public interface DatanodeProtocol {
   /**
    * This class is used by both the Namenode (client) and BackupNode (server) 

@@ -44,7 +44,6 @@ class FSDirMkdirOp {
   static HdfsFileStatus mkdirs(FSNamesystem fsn, String src,
       PermissionStatus permissions, boolean createParent) throws IOException {
 	  //hadoop fs -ls /
-	  //hadoop2.6.5
     //TODO 讲解 HDFS是如何管理目录树的
     /**
      *  FSDirectory 目录树
@@ -85,7 +84,8 @@ class FSDirMkdirOp {
       if (lastINode != null && lastINode.isFile()) {
         throw new FileAlreadyExistsException("Path is not a directory: " + src);
       }
-
+      // lastINode 最后一个节点 如果不为空则就是我们需要创建的/user/hive/warehouse/data/mytable
+      // 如果为空 则是已经存在的路径如  /user/hive/warehouse
       INodesInPath existing = lastINode != null ? iip : iip.getExistingINodes();
       if (lastINode == null) {
         if (fsd.isPermissionEnabled()) {
@@ -189,11 +189,11 @@ class FSDirMkdirOp {
 
     for (String component : children) {
     	//TODO 一个目录一个目录去创建
-       //如果我们只创建的目录只有一个那么这个循环就只运行一次。
-      existing = createSingleDirectory(fsd, existing, component, perm);
-      if (existing == null) {
-        return null;
-      }
+        //如果我们只创建的目录只有一个那么这个循环就只运行一次。
+        existing = createSingleDirectory(fsd, existing, component, perm);
+        if (existing == null) {
+          return null;
+        }
     }
     return existing;
   }
@@ -231,17 +231,14 @@ class FSDirMkdirOp {
     assert fsd.hasWriteLock();
     //TODO  更新文件目录树，这棵目录树是存在于内存中的，有FSNameSystem管理的
     //更新内存里面的数据
-    existing = unprotectedMkdir(fsd, fsd.allocateNewInodeId(), existing,
-        localName.getBytes(Charsets.UTF_8), perm, null, now());
+    existing = unprotectedMkdir(fsd, fsd.allocateNewInodeId(), existing, localName.getBytes(Charsets.UTF_8), perm, null, now());
     if (existing == null) {
       return null;
     }
-
     final INode newNode = existing.getLastINode();
     // Directory creation also count towards FilesCreated
     // to match count of FilesDeleted metric.
     NameNode.getNameNodeMetrics().incrFilesCreated();
-
     String cur = existing.getPath();
     //TODO 把元数据信息记录到磁盘上（但是一开始先写到内存）
     //往磁盘上面记录元数据日志
@@ -282,14 +279,12 @@ class FSDirMkdirOp {
      * INodeDirectory代表目录
      * INodeFile代表文件
      *
-     *
+     * inodeId 是随机创建的
      */
-
     //TODO 封装成一个目录
-    final INodeDirectory dir = new INodeDirectory(inodeId, name, permission,
-        timestamp);
+    final INodeDirectory dir = new INodeDirectory(inodeId, name, permission,timestamp);
     // /user/hive/warehouse/
-    //  /user/hive/warehouse/data
+    // /user/hive/warehouse/data
     //TODO 往文件目录树 该添加目录的地方添加节点
     INodesInPath iip = fsd.addLastINode(parent, dir, true);
     if (iip != null && aclEntries != null) {

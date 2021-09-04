@@ -145,12 +145,12 @@ public class JournalNode implements Tool, Configurable, JournalNodeMXBean {
         DFSConfigKeys.DFS_JOURNALNODE_KERBEROS_PRINCIPAL_KEY, socAddr.getHostName());
     
     registerJNMXBean();
-    
+    //todo 创建httpServer
     httpServer = new JournalNodeHttpServer(conf, this);
     httpServer.start();
 
     httpServerURI = httpServer.getServerURI().toString();
-
+    //todo 创建rpcServer
     rpcServer = new JournalNodeRpcServer(conf, this);
     rpcServer.start();
   }

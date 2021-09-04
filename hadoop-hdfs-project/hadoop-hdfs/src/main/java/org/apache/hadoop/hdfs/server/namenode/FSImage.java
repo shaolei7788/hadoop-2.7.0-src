@@ -823,14 +823,12 @@ public class FSImage implements Closeable {
     
     long prevLastAppliedTxId = lastAppliedTxId;  
     try {
-    	
       //TODO 构建了FSEDitLogLoader
       FSEditLogLoader loader = new FSEditLogLoader(target, lastAppliedTxId);
       
       // Load latest edits
       for (EditLogInputStream editIn : editStreams) {
-        LOG.info("Reading " + editIn + " expecting start txid #" +
-              (lastAppliedTxId + 1));
+        LOG.info("Reading " + editIn + " expecting start txid #" + (lastAppliedTxId + 1));
         try {
         	//TODO 加载日志
             //1000

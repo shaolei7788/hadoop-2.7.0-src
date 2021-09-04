@@ -1317,6 +1317,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
 
     // Disable quota checks while in standby.
     dir.disableQuotaChecks();
+    //todo 创建editLogTailer 用于从journalNode 拉取元数据日志操作信息
     editLogTailer = new EditLogTailer(this, conf);
     editLogTailer.start();
     if (standbyShouldCheckpoint) {
@@ -3952,7 +3953,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     } finally {
       writeUnlock();
     }
-    //TODO  元数据日志持久化
+    //TODO  元数据日志持久化   
     getEditLog().logSync();
     logAuditEvent(true, "mkdirs", src, null, auditStat);
     return true;

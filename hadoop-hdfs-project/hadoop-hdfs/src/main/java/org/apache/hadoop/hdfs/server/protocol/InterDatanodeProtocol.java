@@ -34,6 +34,9 @@ import org.apache.hadoop.security.KerberosInfo;
     serverPrincipal = DFSConfigKeys.DFS_DATANODE_KERBEROS_PRINCIPAL_KEY,
     clientPrincipal = DFSConfigKeys.DFS_DATANODE_KERBEROS_PRINCIPAL_KEY)
 @InterfaceAudience.Private
+/**
+ * datanode 与 datanode 之间通信的接口
+ */
 public interface InterDatanodeProtocol {
   public static final Log LOG = LogFactory.getLog(InterDatanodeProtocol.class);
 

@@ -73,6 +73,17 @@ import org.apache.hadoop.security.token.TokenInfo;
 @KerberosInfo(
     serverPrincipal = DFSConfigKeys.DFS_NAMENODE_KERBEROS_PRINCIPAL_KEY)
 @TokenInfo(DelegationTokenSelector.class)
+
+/**
+ * for-sl
+ * ClientProtocol 定义了客户端与namenode节点间的接口，
+ * 客户端对文件系统的所有操作都需要通过这个接口
+ * 同时客户端读写文件等操作也需要先通过这个接口与namenode协商之后
+ * 再进行数据块的读出和写入操作
+ *
+ *
+ */
+
 public interface ClientProtocol {
 
   /**

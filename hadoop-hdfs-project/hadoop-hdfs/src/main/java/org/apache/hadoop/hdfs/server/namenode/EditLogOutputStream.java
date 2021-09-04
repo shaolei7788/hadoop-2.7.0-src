@@ -110,9 +110,11 @@ public abstract class EditLogOutputStream implements Closeable {
   public void flush(boolean durable) throws IOException {
     numSync++;
     long start = monotonicNow();
-    //todo 第一次：FileJouranlManager   -> EditLogFileOutputStream
+    //todo
+    // 第一次：FileJouranlManager   -> EditLogFileOutputStream
     // 第二次：QuorumJounalManager  -> QuorumOutputStream
-    // QuorumOutputStream#flushAndSync
+    // EditLogFileOutputStream#flushAndSync
+    // QuorumOutputStream#flushAndSync  会因为fullgc 导致namenode退出
     flushAndSync(durable);
     long end = monotonicNow();
     totalTimeSync += (end - start);

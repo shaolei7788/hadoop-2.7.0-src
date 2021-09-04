@@ -229,8 +229,7 @@ public class IPCLoggerChannel implements AsyncLogger {
         new PrivilegedExceptionAction<QJournalProtocol>() {
           @Override
           public QJournalProtocol run() throws IOException {
-            RPC.setProtocolEngine(confCopy,
-                QJournalProtocolPB.class, ProtobufRpcEngine.class);
+            RPC.setProtocolEngine(confCopy, QJournalProtocolPB.class, ProtobufRpcEngine.class);
             QJournalProtocolPB pbproxy = RPC.getProxy(
                 QJournalProtocolPB.class,
                 RPC.getProtocolVersion(QJournalProtocolPB.class),
