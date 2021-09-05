@@ -964,8 +964,7 @@ public class RPC {
     @Override
     public Writable call(RPC.RpcKind rpcKind, String protocol,
         Writable rpcRequest, long receiveTime) throws Exception {
-      return getRpcInvoker(rpcKind).call(this, protocol, rpcRequest,
-          receiveTime);
+      return getRpcInvoker(rpcKind).call(this, protocol, rpcRequest, receiveTime);
     }
   }
 }

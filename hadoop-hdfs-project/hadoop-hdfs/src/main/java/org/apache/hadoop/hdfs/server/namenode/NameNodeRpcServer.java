@@ -295,7 +295,7 @@ class NameNodeRpcServer implements NamenodeProtocols {
       //TODO 启动ServiceRPCServer
         // 这个服务是用来监听DataNode发送过来的请求的
 
-        // JPS  namenode服务
+        // JPS  namenode服务  用于响应 DataNode RPC 请求 服务之间互相进行的方法的调用（注册、心跳等）
       this.serviceRpcServer = new RPC.Builder(conf)
           .setProtocol(org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolPB.class)
           .setInstance(clientNNPbService)
@@ -334,7 +334,7 @@ class NameNodeRpcServer implements NamenodeProtocols {
     LOG.info("RPC server is binding to " + bindHost + ":" + rpcAddr.getPort());
     //TODO 启动了clientRpcServer
     //这个服务是主要服务于 用户使用的客户端发送过来的请求的
-    // clientRpcServer负责维护Client和NameNode的RPC请求
+    // clientRpcServer负责维护Client和NameNode的RPC请求 用于响应 hdfs 客户端的 RPC请求
     this.clientRpcServer = new RPC.Builder(conf)
         .setProtocol(org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolPB.class)
         .setInstance(clientNNPbService).setBindAddress(bindHost)
@@ -347,16 +347,11 @@ class NameNodeRpcServer implements NamenodeProtocols {
     DFSUtil.addPBProtocol(conf, NamenodeProtocolPB.class, NNPbService, clientRpcServer);
     DFSUtil.addPBProtocol(conf, DatanodeProtocolPB.class, dnProtoPbService, clientRpcServer);
     DFSUtil.addPBProtocol(conf, RefreshAuthorizationPolicyProtocolPB.class, refreshAuthService, clientRpcServer);
-    DFSUtil.addPBProtocol(conf, RefreshUserMappingsProtocolPB.class, 
-        refreshUserMappingService, clientRpcServer);
-    DFSUtil.addPBProtocol(conf, RefreshCallQueueProtocolPB.class,
-        refreshCallQueueService, clientRpcServer);
-    DFSUtil.addPBProtocol(conf, GenericRefreshProtocolPB.class,
-        genericRefreshService, clientRpcServer);
-    DFSUtil.addPBProtocol(conf, GetUserMappingsProtocolPB.class, 
-        getUserMappingService, clientRpcServer);
-    DFSUtil.addPBProtocol(conf, TraceAdminProtocolPB.class,
-        traceAdminService, clientRpcServer);
+    DFSUtil.addPBProtocol(conf, RefreshUserMappingsProtocolPB.class, refreshUserMappingService, clientRpcServer);
+    DFSUtil.addPBProtocol(conf, RefreshCallQueueProtocolPB.class, refreshCallQueueService, clientRpcServer);
+    DFSUtil.addPBProtocol(conf, GenericRefreshProtocolPB.class, genericRefreshService, clientRpcServer);
+    DFSUtil.addPBProtocol(conf, GetUserMappingsProtocolPB.class, getUserMappingService, clientRpcServer);
+    DFSUtil.addPBProtocol(conf, TraceAdminProtocolPB.class, traceAdminService, clientRpcServer);
 
     // set service-level authorization security policy
     if (serviceAuthEnabled =
