@@ -367,30 +367,22 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     }
   }
 
-  /**
-   * Logger for audit events, noting successful FSNamesystem operations. Emits
-   * to FSNamesystem.audit at INFO. Each event causes a set of tab-separated
-   * <code>key=value</code> pairs to be written for the following properties:
-   * <code>
-   * ugi=&lt;ugi in RPC&gt;
-   * ip=&lt;remote IP&gt;
-   * cmd=&lt;command&gt;
-   * src=&lt;src path&gt;
-   * dst=&lt;dst path (optional)&gt;
-   * perm=&lt;permissions (optional)&gt;
-   * </code>
-   */
+
   public static final Log auditLog = LogFactory.getLog(FSNamesystem.class.getName() + ".audit");
 
   static final int DEFAULT_MAX_CORRUPT_FILEBLOCKS_RETURNED = 100;
   static int BLOCK_DELETION_INCREMENT = 1000;
+
   //是否打开权限检查。能够通过配置项dfs.permissions 来设置
   private final boolean isPermissionEnabled;
+
   //本地文件的用户文件属主和文件组，能够通过hadoop.job.ugi 设置，假设没有设置，
   //那么将使用启动HDFS 的用户（通过whoami 获得）和该用户所在的组（通过groups 获得）作为值
   private final UserGroupInformation fsOwner;
+
   //相应配置项dfs.permissions.supergroup，应用在defaultPermission 中。是系统的超级组。
   private final String supergroup;
+
   //参数dfs.ha.standby.checkpoints控制，表示standby节点是否进行checkpoint检查
   private final boolean standbyShouldCheckpoint;
   
@@ -3148,8 +3140,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     //TODO 选择存放block的datanode主机(负载均衡)
     // HDFS 机架感知
     final DatanodeStorageInfo targets[] = getBlockManager().chooseTarget4NewBlock( 
-        src, replication, clientNode, excludedNodes, blockSize, favoredNodes,
-        storagePolicyID);
+        src, replication, clientNode, excludedNodes, blockSize, favoredNodes, storagePolicyID);
 
     // Part II.
     // Allocate a new block, add it to the INode and the BlocksMap. 
@@ -3339,8 +3330,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
                                         long offset) throws IOException {
     LocatedBlock lBlk = new LocatedBlock(
         getExtendedBlock(blk), locs, offset, false);
-    getBlockManager().setBlockToken(
-        lBlk, BlockTokenSecretManager.AccessMode.WRITE);
+    getBlockManager().setBlockToken(lBlk, BlockTokenSecretManager.AccessMode.WRITE);
     return lBlk;
   }
 

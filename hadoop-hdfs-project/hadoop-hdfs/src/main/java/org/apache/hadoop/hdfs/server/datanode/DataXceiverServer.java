@@ -43,7 +43,7 @@ import com.google.common.annotations.VisibleForTesting;
  */
 class DataXceiverServer implements Runnable {
   public static final Log LOG = DataNode.LOG;
-  // PeerServer是一个接口，实现了它的TcpPeerServer封装饿了一个ServerSocket，提供了Java Socket服务端的功能
+  // PeerServer是一个接口，实现了它的TcpPeerServer封装了一个ServerSocket，提供了Java Socket服务端的功能
   private final PeerServer peerServer;
   // 该DataXceiverServer所属DataNode实例datanode
   private final DataNode datanode;
@@ -151,8 +151,7 @@ class DataXceiverServer implements Runnable {
               + maxXceiverCount);
         }
        //TODO 每发送过来一个block 都启动一个DataXceiver 去处理这个block
-        new Daemon(datanode.threadGroup, DataXceiver.create(peer, datanode, this))
-            .start();
+        new Daemon(datanode.threadGroup, DataXceiver.create(peer, datanode, this)).start();
       } catch (SocketTimeoutException ignored) {
         // wake up to see if should continue to run
       } catch (AsynchronousCloseException ace) {

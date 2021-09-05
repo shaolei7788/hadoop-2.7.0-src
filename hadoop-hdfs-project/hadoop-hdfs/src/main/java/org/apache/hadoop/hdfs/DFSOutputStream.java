@@ -393,7 +393,6 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 						DFSClient.LOG.warn("Caught exception ", e);
 					}
 				}
-
 				DFSPacket one;
 				try {
 					// process datanode IO errors if any
@@ -413,6 +412,7 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 										|| stage == BlockConstructionStage.DATA_STREAMING
 												&& now - lastPacket < dfsClient.getConf().socketTimeout / 2))
 								|| doSleep) {
+							//socketTimeout 60s
 							long timeout = dfsClient.getConf().socketTimeout / 2 - (now - lastPacket);
 							timeout = timeout <= 0 ? 1000 : timeout;
 							timeout = (stage == BlockConstructionStage.DATA_STREAMING) ? timeout : 1000;
@@ -750,10 +750,8 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 
 			@Override
 			public void run() {
-
 				setName("ResponseProcessor for block " + block);
 				PipelineAck ack = new PipelineAck();
-
 				TraceScope scope = NullScope.INSTANCE;
 				while (!responderClosed && dfsClient.clientRunning && !isLastPacketInBlock) {
 					// process responses from datanodes.
@@ -826,7 +824,6 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 							//TODO 如果发送成功那么就会把ackQueue里面packet移除来
 							ackQueue.removeFirst();
 							dataQueue.notifyAll();
-
 							one.releaseBuffer(byteArrayManager);
 						}
 					} catch (Exception e) {
@@ -1257,15 +1254,14 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 				errorIndex = -1;
 				success = false;
 
-				DatanodeInfo[] excluded = excludedNodes.getAllPresent(excludedNodes.asMap().keySet()).keySet()
-						.toArray(new DatanodeInfo[0]);
+				DatanodeInfo[] excluded = excludedNodes.getAllPresent(excludedNodes.asMap().keySet()).keySet().toArray(new DatanodeInfo[0]);
 				block = oldBlock;
 				// TODO 向NameNode申请block
 			    /**
 				 * 服务端那儿的操作：
 			     * 1) 创建了一个block，往文件目录树里面挂载了block的信息
 			     * 2）在磁盘上面记录了元数据信息
-			     * 3）在BLockMananger里面记录了block的元数据信息
+			     * 3）在BlockMananger里面记录了block的元数据信息
 			     */
 				lb = locateFollowingBlock(excluded.length > 0 ? excluded : null);
 				block = lb.getBlock();
@@ -1289,7 +1285,7 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 					DFSClient.LOG.info("Excluding datanode " + nodes[errorIndex]);
 					//hadoop3
 					excludedNodes.put(nodes[errorIndex], nodes[errorIndex]);
-				} // TODO
+				}
 			} while (!success && --count >= 0);
 
 			if (!success) {
@@ -1336,8 +1332,7 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
                     //创建输入流(肯定是读取响应的结果)
 					InputStream unbufIn = NetUtils.getInputStream(s);
 					//TODO 注意这儿是一个socket
-					IOStreamPair saslStreams = dfsClient.saslClient.socketSend(s, unbufOut, unbufIn, dfsClient,
-							accessToken, nodes[0]);
+					IOStreamPair saslStreams = dfsClient.saslClient.socketSend(s, unbufOut, unbufIn, dfsClient, accessToken, nodes[0]);
 					unbufOut = saslStreams.out;
 					unbufIn = saslStreams.in;
 					//TODO 这个输出流是把客户端的数据写到DataNode上面
@@ -1473,8 +1468,7 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 				while (true) {
 					try {
 						//TODO 通过RPC 调用NameNode服务端的代码
-						return dfsClient.namenode.addBlock(src, dfsClient.clientName, block, excludedNodes, fileId,
-								favoredNodes);
+						return dfsClient.namenode.addBlock(src, dfsClient.clientName, block, excludedNodes, fileId, favoredNodes);
 					} catch (RemoteException e) {
 						IOException ue = e.unwrapRemoteException(FileNotFoundException.class,
 								AccessControlException.class, NSQuotaExceededException.class,
@@ -1643,7 +1637,7 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
          */
 		computePacketChunkSize(dfsClient.getConf().writePacketSize, bytesPerChecksum);
          
-		//TODO 创建了DataStreamer(可以去看一下这类的注释)
+		//TODO 创建了DataStreamer(可以去看一下这类的注释) DataStreamer 是一个线程
 		streamer = new DataStreamer(stat, null);
 		if (favoredNodes != null && favoredNodes.length != 0) {
 			streamer.setFavoredNodes(favoredNodes);
@@ -1667,19 +1661,16 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 				shouldRetry = false;
 				try {
 					/**
-					 * 
 					 * HDFS原理总结：
 					 * 创建目录：就是在 目录树(元数据)上面添加一个子Node (INodeDirectory)
+					 *
 					 * 上传文件：
 					 *     1）在目录树里面添加一个字Node(InodeFile)
 					 *     2）再往文件里面写数据
-
 					 *     更新了元数据
 					 *     添加了契约
-					 *     
 						 TODO 往目录树里添加InodeFile，记录元数据日志和添加契约
 					     这儿都是需要跟Namenode的服务端进行交互的
-					 * 
 					 */
 					stat = dfsClient.namenode.create(src, masked, dfsClient.clientName,
 							new EnumSetWritable<CreateFlag>(flag), createParent, replication, blockSize,
@@ -1708,8 +1699,7 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 			Preconditions.checkNotNull(stat, "HdfsFileStatus should not be null!");
 
 			//TODO 里面初始化了DataStreamer，DataStreamer是写数据流程里面重要的对象
-			final DFSOutputStream out = new DFSOutputStream(dfsClient, src, stat, flag, progress, checksum,
-					favoredNodes);
+			final DFSOutputStream out = new DFSOutputStream(dfsClient, src, stat, flag, progress, checksum, favoredNodes);
 			//TODO 里面启动了DataStreamer
 			out.start();
 			return out;

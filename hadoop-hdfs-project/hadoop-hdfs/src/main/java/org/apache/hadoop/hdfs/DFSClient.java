@@ -1588,6 +1588,7 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory, DataEncr
 		}
 		//重要代码
 		/**
+		 * todo 核心
 		 * 总结：
 		 * 1） 往文件目录树里面添加了文件
 		 * 2） 添加了契约

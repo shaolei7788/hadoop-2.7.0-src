@@ -699,8 +699,7 @@ class NameNodeRpcServer implements NamenodeProtocols {
       throws IOException {
     checkNNStartup();
     if (stateChangeLog.isDebugEnabled()) {
-      stateChangeLog.debug("*BLOCK* NameNode.addBlock: file " + src
-          + " fileId=" + fileId + " for " + clientName);
+      stateChangeLog.debug("*BLOCK* NameNode.addBlock: file " + src + " fileId=" + fileId + " for " + clientName);
     }
     Set<Node> excludedNodesSet = null;
     if (excludedNodes != null) {
@@ -709,16 +708,12 @@ class NameNodeRpcServer implements NamenodeProtocols {
         excludedNodesSet.add(node);
       }
     }
-    List<String> favoredNodesList = (favoredNodes == null) ? null
-        : Arrays.asList(favoredNodes);
+    List<String> favoredNodesList = (favoredNodes == null) ? null : Arrays.asList(favoredNodes);
     //TODO 添加一个block
     /**
-     * 
      * 1)  选择三台DataNode副本机器
      * 2） 修改了目录树
      * 3） 存储元数据信息
-     *
-     *
      */
     LocatedBlock locatedBlock = namesystem.getAdditionalBlock(src, fileId,
         clientName, previous, excludedNodesSet, favoredNodesList);

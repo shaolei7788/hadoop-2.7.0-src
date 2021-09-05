@@ -575,6 +575,7 @@ public abstract class Server {
       port = acceptChannel.socket().getLocalPort(); //Could be an ephemeral port
       // create a selector;
       selector= Selector.open();
+      //todo Reader 也是一个线程
       readers = new Reader[readThreads];
       for (int i = 0; i < readThreads; i++) {
         Reader reader = new Reader(
@@ -596,15 +597,16 @@ public abstract class Server {
       Reader(String name) throws IOException {
         super(name);
 
-        this.pendingConnections =
-            new LinkedBlockingQueue<Connection>(readerPendingConnectionQueue);
+        this.pendingConnections = new LinkedBlockingQueue<Connection>(readerPendingConnectionQueue);
         this.readSelector = Selector.open();
       }
-      
+
+      //Reader#run
       @Override
       public void run() {
         LOG.info("Starting " + Thread.currentThread().getName());
         try {
+          //todo
           doRunLoop();
         } finally {
           try {
@@ -671,6 +673,7 @@ public abstract class Server {
       }
     }
 
+    //TODO Listener#run
     @Override
     public void run() {
       LOG.info(Thread.currentThread().getName() + ": starting");
@@ -687,6 +690,7 @@ public abstract class Server {
             try {
               if (key.isValid()) {
                 if (key.isAcceptable())
+                  //建立连接
                   doAccept(key);
               }
             } catch (IOException e) {
@@ -740,12 +744,12 @@ public abstract class Server {
       ServerSocketChannel server = (ServerSocketChannel) key.channel();
       SocketChannel channel;
       while ((channel = server.accept()) != null) {
-
         channel.configureBlocking(false);
         channel.socket().setTcpNoDelay(tcpNoDelay);
         channel.socket().setKeepAlive(true);
-        
+        //todo 轮询方式获取一个Reader
         Reader reader = getReader();
+        // connectionManager = ConnectionManager
         Connection c = connectionManager.register(channel);
         // If the connectionManager can't take it, close the connection.
         if (c == null) {
@@ -768,6 +772,9 @@ public abstract class Server {
       c.setLastContact(Time.now());
       
       try {
+        //todo readAndProcess 做两件事
+        // 1 读取数据
+        // 2 封装成RpcCall 加入callQueue
         count = c.readAndProcess();
       } catch (InterruptedException ieo) {
         LOG.info(Thread.currentThread().getName() + ": readAndProcess caught InterruptedException", ieo);
@@ -831,6 +838,8 @@ public abstract class Server {
       pending = 0;
     }
 
+
+    //Responder#run
     @Override
     public void run() {
       LOG.info(Thread.currentThread().getName() + ": starting");
@@ -985,6 +994,7 @@ public abstract class Server {
           //
           int numBytes = channelWrite(channel, call.rpcResponse);
           if (numBytes < 0) {
+            //代表写完了
             return true;
           }
           if (!call.rpcResponse.hasRemaining()) {
@@ -1538,6 +1548,7 @@ public abstract class Server {
           dataLengthBuffer.clear();
           data.flip();
           boolean isHeaderRead = connectionContextRead;
+          //todo
           processOneRpc(data.array());
           data = null;
           if (!isHeaderRead) {
@@ -1869,7 +1880,7 @@ public abstract class Server {
       Call call = new Call(header.getCallId(), header.getRetryCount(),
           rpcRequest, this, ProtoUtil.convert(header.getRpcKind()),
           header.getClientId().toByteArray(), traceSpan);
-
+      //todo 封装成call对象 加入队列
       callQueue.put(call);              // queue the call; maybe blocked here
       incRpcCount();  // Increment the rpc count
     }
@@ -2005,15 +2016,16 @@ public abstract class Server {
       this.setName("IPC Server handler "+ instanceNumber + " on " + port);
     }
 
+    //todo Handler#run
     @Override
     public void run() {
       LOG.debug(Thread.currentThread().getName() + ": starting");
       SERVER.set(Server.this);
-      ByteArrayOutputStream buf = 
-        new ByteArrayOutputStream(INITIAL_RESP_BUF_SIZE);
+      ByteArrayOutputStream buf = new ByteArrayOutputStream(INITIAL_RESP_BUF_SIZE);
       while (running) {
         TraceScope traceScope = null;
         try {
+          //会一直阻塞
           final Call call = callQueue.take(); // pop the queue; maybe blocked here
           if (LOG.isDebugEnabled()) {
             LOG.debug(Thread.currentThread().getName() + ": " + call + " for RpcKind " + call.rpcKind);
@@ -2040,6 +2052,8 @@ public abstract class Server {
               value = call(call.rpcKind, call.connection.protocolName, call.rpcRequest, 
                            call.timestamp);
             } else {
+              //todo call 就是执行RPC 请求
+              // value 就是RPC请求
               value = 
                 call.connection.user.doAs
                   (new PrivilegedExceptionAction<Writable>() {
@@ -2101,6 +2115,7 @@ public abstract class Server {
                   + call.toString());
               buf = new ByteArrayOutputStream(INITIAL_RESP_BUF_SIZE);
             }
+            //相应结果
             responder.doRespond(call);
           }
         } catch (InterruptedException e) {
@@ -2199,6 +2214,7 @@ public abstract class Server {
 
     // Setup appropriate callqueue
     final String prefix = getQueueClassPrefix();
+    //TODO handler 线程数量 * 100
     this.callQueue = new CallQueueManager<Call>(getQueueClass(prefix, conf),
         maxQueueSize, prefix, conf);
 
@@ -2212,6 +2228,7 @@ public abstract class Server {
     this.negotiateResponse = buildNegotiateResponse(enabledAuthMethods);
     
     // Start the listener here and let it bind to the port
+    //todo 是一个线程 会初始化AcceptSelector ReaderSelector线程
     listener = new Listener();
     this.port = listener.getAddress().getPort();    
     connectionManager = new ConnectionManager();
@@ -2222,6 +2239,7 @@ public abstract class Server {
         CommonConfigurationKeysPublic.IPC_SERVER_TCPNODELAY_DEFAULT);
 
     // Create the responder here
+    //todo 是一个线程
     responder = new Responder();
     
     if (secretManager != null || UserGroupInformation.isSecurityEnabled()) {
@@ -2434,6 +2452,7 @@ public abstract class Server {
   public synchronized void start() {
     responder.start();
     listener.start();
+    //todo Handler 也是一个线程
     handlers = new Handler[handlerCount];
     
     for (int i = 0; i < handlerCount; i++) {
