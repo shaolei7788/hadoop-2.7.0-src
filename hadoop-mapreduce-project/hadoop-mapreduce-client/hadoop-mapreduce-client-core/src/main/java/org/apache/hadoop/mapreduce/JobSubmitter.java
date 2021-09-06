@@ -153,6 +153,8 @@ class JobSubmitter {
       conf.set(MRJobConfig.JOB_SUBMITHOST,submitHostName);
       conf.set(MRJobConfig.JOB_SUBMITHOSTADDR,submitHostAddress);
     }
+    //todo submitClient 就是client和RM之间的通信协议
+    //submitClient = YARNRunner
     JobID jobId = submitClient.getNewJobID();
     job.setJobID(jobId);
     Path submitJobDir = new Path(jobStagingArea, jobId.toString());

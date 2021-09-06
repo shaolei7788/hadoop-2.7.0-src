@@ -96,6 +96,7 @@ public interface Service extends Closeable {
    * @throws RuntimeException on any failure during the operation
 
    */
+  //服务初始化
   void init(Configuration config);
 
 
@@ -108,7 +109,7 @@ public interface Service extends Closeable {
    * {@link STATE#STOPPED}.
    * @throws RuntimeException on any failure during the operation
    */
-
+  //服务启动
   void start();
 
   /**
@@ -121,6 +122,7 @@ public interface Service extends Closeable {
    * fields.
    * @throws RuntimeException on any failure during the stop operation
    */
+  //服务停止
   void stop();
 
   /**
@@ -130,6 +132,7 @@ public interface Service extends Closeable {
    * @throws IOException never
    * @throws RuntimeException on any failure during the stop operation
    */
+  //服务关闭
   void close() throws IOException;
 
   /**

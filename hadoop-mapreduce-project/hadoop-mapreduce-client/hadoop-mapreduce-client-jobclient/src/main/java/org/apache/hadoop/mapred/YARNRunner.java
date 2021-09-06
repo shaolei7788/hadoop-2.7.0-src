@@ -287,10 +287,10 @@ public class YARNRunner implements ClientProtocol {
 
     // Submit to ResourceManager
     try {
-      ApplicationId applicationId =
-          resMgrDelegate.submitApplication(appContext);
+      //todo
+      ApplicationId applicationId = resMgrDelegate.submitApplication(appContext);
 
-      //todo 提交
+      //todo
       ApplicationReport appMaster = resMgrDelegate.getApplicationReport(applicationId);
       String diagnostics =
           (appMaster == null ? "application report is null" : appMaster.getDiagnostics());
