@@ -287,6 +287,7 @@ public class ResourceMgrDelegate extends YarnClient {
   public ApplicationId
       submitApplication(ApplicationSubmissionContext appContext)
           throws YarnException, IOException {
+    //client = YarnClientImpl
     return client.submitApplication(appContext);
   }
 

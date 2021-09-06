@@ -150,8 +150,7 @@ public abstract class AbstractService implements Service {
   @Override
   public void init(Configuration conf) {
     if (conf == null) {
-      throw new ServiceStateException("Cannot initialize service "
-                                      + getName() + ": null configuration");
+      throw new ServiceStateException("Cannot initialize service " + getName() + ": null configuration");
     }
     if (isInState(STATE.INITED)) {
       return;
@@ -160,6 +159,7 @@ public abstract class AbstractService implements Service {
       if (enterState(STATE.INITED) != STATE.INITED) {
         setConfig(conf);
         try {
+          //ResourceManager#serviceInit
           serviceInit(config);
           if (isInState(STATE.INITED)) {
             //if the service ended up here during init,

@@ -1283,9 +1283,9 @@ public class Job extends JobContextImpl implements JobContext {
     // 1.x 都是oldapi mapred.xxx 很多都是接口
     setUseNewAPI();
     //连接集群 yarn集群
+    //客户端连接ResourceManager
     connect();
-    final JobSubmitter submitter = 
-        getJobSubmitter(cluster.getFileSystem(), cluster.getClient());
+    final JobSubmitter submitter = getJobSubmitter(cluster.getFileSystem(), cluster.getClient());
     status = ugi.doAs(new PrivilegedExceptionAction<JobStatus>() {
       public JobStatus run() throws IOException, InterruptedException, ClassNotFoundException {
         //todo 提交任务
