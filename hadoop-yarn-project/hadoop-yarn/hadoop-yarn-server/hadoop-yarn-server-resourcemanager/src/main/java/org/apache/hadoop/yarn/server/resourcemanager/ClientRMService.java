@@ -572,7 +572,6 @@ public class ClientRMService extends AbstractService implements
           .getApplicationType().substring(0, YarnConfiguration.APPLICATION_TYPE_LENGTH));
       }
     }
-
     try {
       // call RMAppManager to submit application directly
       //todo RMAppManager#submitApplication
