@@ -164,11 +164,11 @@ public class ResourceManager extends CompositeService implements Recoverable {
    * "Active" services. Services that need to run only on the Active RM.
    * These services are managed (initialized, started, stopped) by the
    * {@link CompositeService} RMActiveServices.
-   *
    * RM is active when (1) HA is disabled, or (2) HA is enabled and the RM is
    * in Active state.
    */
   protected RMActiveServices activeServices;
+
   protected RMSecretManagerService rmSecretManagerService;
 
 
