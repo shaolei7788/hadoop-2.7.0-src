@@ -529,8 +529,7 @@ public class ClientRMService extends AbstractService implements
   @Override
   public SubmitApplicationResponse submitApplication(
       SubmitApplicationRequest request) throws YarnException {
-    ApplicationSubmissionContext submissionContext = request
-        .getApplicationSubmissionContext();
+    ApplicationSubmissionContext submissionContext = request.getApplicationSubmissionContext();
     ApplicationId applicationId = submissionContext.getApplicationId();
 
     // ApplicationSubmissionContext needs to be validated for safety - only
@@ -570,16 +569,13 @@ public class ClientRMService extends AbstractService implements
     } else {
       if (submissionContext.getApplicationType().length() > YarnConfiguration.APPLICATION_TYPE_LENGTH) {
         submissionContext.setApplicationType(submissionContext
-          .getApplicationType().substring(0,
-            YarnConfiguration.APPLICATION_TYPE_LENGTH));
+          .getApplicationType().substring(0, YarnConfiguration.APPLICATION_TYPE_LENGTH));
       }
     }
-
     try {
       // call RMAppManager to submit application directly
       //todo RMAppManager#submitApplication
-      rmAppManager.submitApplication(submissionContext,
-          System.currentTimeMillis(), user);
+      rmAppManager.submitApplication(submissionContext, System.currentTimeMillis(), user);
 
       LOG.info("Application with id " + applicationId.getId() + 
           " submitted by user " + user);

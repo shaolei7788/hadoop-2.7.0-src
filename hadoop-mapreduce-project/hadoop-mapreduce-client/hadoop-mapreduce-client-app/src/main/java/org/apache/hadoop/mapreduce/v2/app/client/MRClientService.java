@@ -95,6 +95,10 @@ import org.apache.hadoop.yarn.webapp.WebApps;
  * jobclient (user facing).
  *
  */
+
+/**
+ * 客户端可通过该协议获取作业的执行状态（而不必通过ResourceManager）控制作业（比如杀死作业等）
+ */
 public class MRClientService extends AbstractService implements ClientService {
 
   static final Log LOG = LogFactory.getLog(MRClientService.class);

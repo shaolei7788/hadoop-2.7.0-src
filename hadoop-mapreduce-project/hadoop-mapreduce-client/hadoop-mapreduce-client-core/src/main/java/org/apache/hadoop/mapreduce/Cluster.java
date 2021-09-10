@@ -98,8 +98,7 @@ public class Cluster {
           if (clientProtocol != null) {
             clientProtocolProvider = provider;
             client = clientProtocol;
-            LOG.debug("Picked " + provider.getClass().getName()
-                + " as the ClientProtocolProvider");
+            LOG.debug("Picked " + provider.getClass().getName() + " as the ClientProtocolProvider");
             break;
           }
           else {
