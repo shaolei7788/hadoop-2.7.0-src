@@ -33,6 +33,9 @@ import org.apache.hadoop.hdfs.server.protocol.StorageReport;
  * A Datanode has one or more storages. A storage in the Datanode is represented
  * by this class.
  */
+//todo DatanodeStorageInfo类描述了Datanode上的一个存储（storage）一个Datanode可以定义多个存储
+// （在dfs.datanode.data.dir中配置多个Datanode的存储目录） 来保存数据块，
+// 这些存储还可以是异构的， 例如可以是磁盘、 内存、 SSD等
 public class DatanodeStorageInfo {
   public static final DatanodeStorageInfo[] EMPTY_ARRAY = {};
 
@@ -102,17 +105,30 @@ public class DatanodeStorageInfo {
     }
   }
 
+  //  Datanode 的信息
   private final DatanodeDescriptor dn;
+
+  // 存储策略id
   private final String storageID;
+
+  //数据存储类型  disk，ssd等
   private StorageType storageType;
+
+  //状态[三种] : NORMAL  READ_ONLY_SHARED[用于调试]  FAILED
   private State state;
 
+
   private long capacity;
+  //使用量
   private long dfsUsed;
+  //剩余容量
   private volatile long remaining;
+  //块池的使用量
   private long blockPoolUsed;
 
   private volatile BlockInfoContiguous blockList = null;
+
+  //保存的副本数量
   private int numBlocks = 0;
 
   // The ID of the last full block report which updated this storage.
@@ -124,7 +140,11 @@ public class DatanodeStorageInfo {
   /**
    * Set to false on any NN failover, and reset to true
    * whenever a block report is received.
+   *  当Namenode出现失败时， 会将这个字段设置为false
+   *  当Namenode正常接收到这个存储的心跳后， 会将这个字段设置为 true
+   *
    */
+
   private boolean heartbeatedSinceFailover = false;
 
   /**
@@ -134,7 +154,15 @@ public class DatanodeStorageInfo {
    * storage is considered as stale, the replicas on it are also considered as
    * stale. If any block has at least one stale replica, then no invalidations
    * will be processed for this block. See HDFS-1972.
+   *
+   *
+   * 当Namenode出现失败或者正在启动时， Datanode会挂起上一次Namenode发起的删除操作。
+   *    * 这个时候我们就认为当前存储为stale状态， 直到Namenode收到了这个存储的块汇报。
+   *    * 当一个存储处于stale状态时， 这个存储上的所有副本都是stale状态的， 如果一个数据块至少有一个stale副本，
+   *    * 那么这个数据块也为stale状态， stale状态数据块的所有副本是不可以执行删除操作的（ HDFS-1972）
+   *
    */
+
   private boolean blockContentsStale = true;
 
   DatanodeStorageInfo(DatanodeDescriptor dn, DatanodeStorage s) {
@@ -229,22 +257,25 @@ public class DatanodeStorageInfo {
   public AddBlockResult addBlock(BlockInfoContiguous b) {
     // First check whether the block belongs to a different storage
     // on the same DN.
+    // 首先检查块是否属于同一DN上的不同存储器
     AddBlockResult result = AddBlockResult.ADDED;
-    DatanodeStorageInfo otherStorage =
-        b.findStorageInfo(getDatanodeDescriptor());
+    DatanodeStorageInfo otherStorage = b.findStorageInfo(getDatanodeDescriptor());
 
     if (otherStorage != null) {
       if (otherStorage != this) {
+        //如果当前数据块属于另一个存储， 则先从该存储上删除这个数据块
         // The block belongs to a different storage. Remove it first.
         otherStorage.removeBlock(b);
         result = AddBlockResult.REPLACED;
       } else {
+        //数据块已经添加到了当前存储上， 不需要再次添加
         // The block is already associated with this storage.
         return AddBlockResult.ALREADY_EXIST;
       }
     }
 
     // add to the head of the data-node list
+    //首先将当前存储添加到数据块所属的存储列表中
     b.addStorage(this);
     blockList = b.listInsert(blockList, this);
     numBlocks++;

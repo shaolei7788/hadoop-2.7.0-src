@@ -42,16 +42,27 @@ import static org.apache.hadoop.hdfs.DFSUtil.percent2String;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 public class DatanodeInfo extends DatanodeID implements Node {
+  //容量
   private long capacity;
+  //使用的空间
   private long dfsUsed;
+  //剩余的空间
   private long remaining;
+  //剩余的空间
   private long blockPoolUsed;
+  //缓存容量
   private long cacheCapacity;
+  //缓存使用量
   private long cacheUsed;
+  //上次更新时间
   private long lastUpdate;
+  //
   private long lastUpdateMonotonic;
+  //
   private int xceiverCount;
+  //地址
   private String location = NetworkTopology.DEFAULT_RACK;
+  //软件版本
   private String softwareVersion;
   private List<String> dependentHostNames = new LinkedList<String>();
   

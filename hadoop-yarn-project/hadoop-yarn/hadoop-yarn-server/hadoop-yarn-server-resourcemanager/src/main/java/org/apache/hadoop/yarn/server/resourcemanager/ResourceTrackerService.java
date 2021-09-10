@@ -159,6 +159,7 @@ public class ResourceTrackerService extends AbstractService implements
     // security is enabled, so no secretManager.
     Configuration conf = getConfig();
     YarnRPC rpc = YarnRPC.create(conf);
+    //创建RM的RPC server
     this.server =
       rpc.getServer(ResourceTracker.class, this, resourceTrackerAddress,
           conf, null,
@@ -178,7 +179,7 @@ public class ResourceTrackerService extends AbstractService implements
       }
       refreshServiceAcls(conf, RMPolicyProvider.getInstance());
     }
- 
+    //启动RM rpc相关服务，主要是selector方式的网络通信中的组件的启动，如selector监听其，reader，writer，handler线程启动
     this.server.start();
     conf.updateConnectAddr(YarnConfiguration.RM_BIND_HOST,
 			   YarnConfiguration.RM_RESOURCE_TRACKER_ADDRESS,

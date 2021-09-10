@@ -32,8 +32,7 @@ import org.apache.hadoop.hdfs.DFSUtil;
 @InterfaceStability.Evolving
 class Host2NodesMap {
   private HashMap<String, String> mapHost = new HashMap<String, String>();
-  private final HashMap<String, DatanodeDescriptor[]> map
-    = new HashMap<String, DatanodeDescriptor[]>();
+  private final HashMap<String, DatanodeDescriptor[]> map = new HashMap<String, DatanodeDescriptor[]>();
   private final ReadWriteLock hostmapLock = new ReentrantReadWriteLock();
 
   /** Check if node is already in the map. */
@@ -71,7 +70,8 @@ class Host2NodesMap {
       
       String ipAddr = node.getIpAddr();
       String hostname = node.getHostName();
-      
+
+      //todo
       mapHost.put(hostname, ipAddr);
       
       DatanodeDescriptor[] nodes = map.get(ipAddr);

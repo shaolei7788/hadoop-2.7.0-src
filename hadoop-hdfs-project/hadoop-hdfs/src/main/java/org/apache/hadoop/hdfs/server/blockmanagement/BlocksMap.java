@@ -106,6 +106,7 @@ class BlocksMap {
    * Add block b belonging to the specified block collection to the map.
    */
   BlockInfoContiguous addBlockCollection(BlockInfoContiguous b, BlockCollection bc) {
+    //GSet<Block, BlockInfoContiguous>
     BlockInfoContiguous info = blocks.get(b);
     if (info != b) {
       info = b;

@@ -90,7 +90,9 @@ public class DatanodeDescriptor extends DatanodeInfo {
   @InterfaceAudience.Private
   @InterfaceStability.Evolving
   public static class BlockTargetPair {
+    //要被复制的数据块
     public final Block block;
+    //复制操作的目标数据节点列表
     public final DatanodeStorageInfo[] targets;    
 
     BlockTargetPair(Block block, DatanodeStorageInfo[] targets) {

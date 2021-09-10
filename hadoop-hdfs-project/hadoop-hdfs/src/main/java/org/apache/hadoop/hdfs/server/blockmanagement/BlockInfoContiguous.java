@@ -31,12 +31,14 @@ import org.apache.hadoop.util.LightWeightGSet;
  * BlockInfo class maintains for a given block
  * the {@link BlockCollection} it is part of and datanodes where the replicas of 
  * the block are stored.
+ *  Contiguous 相邻的的意思
  */
 @InterfaceAudience.Private
 public class BlockInfoContiguous extends Block
     implements LightWeightGSet.LinkedElement {
   public static final BlockInfoContiguous[] EMPTY_ARRAY = {};
 
+  //数据块属于那一个文件
   private BlockCollection bc;
 
   /** For implementing {@link LightWeightGSet.LinkedElement} interface */
@@ -54,6 +56,7 @@ public class BlockInfoContiguous extends Block
    * per replica is 42 bytes (LinkedList#Entry object per replica) versus 16
    * bytes using the triplets.
    */
+  //block的副本存储在那个数据节点上
   private Object[] triplets;
 
   /**

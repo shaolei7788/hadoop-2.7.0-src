@@ -119,6 +119,7 @@ public class CompositeService extends AbstractService {
       // will be stopped and an exception raised
       service.start();
     }
+    //TODO ResourceTrackerService#serviceStart
     super.serviceStart();
   }
 
