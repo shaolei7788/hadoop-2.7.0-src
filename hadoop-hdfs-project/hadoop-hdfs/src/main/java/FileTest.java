@@ -33,5 +33,4 @@ public class FileTest {
 		//TODO HdfsDataOutputStream
 		fsous.write("fdsafdsafdsafs".getBytes());
 	}
-
 }
