@@ -2841,7 +2841,6 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory, DataEncr
 		if (absPermission == null) {
 			absPermission = FsPermission.getDefault().applyUMask(dfsClientConf.uMask);
 		}
-
 		if (LOG.isDebugEnabled()) {
 			LOG.debug(src + ": masked=" + absPermission);
 		}
@@ -2861,10 +2860,7 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory, DataEncr
 
 	/**
 	 * Get {@link ContentSummary} rooted at the specified directory.
-	 * 
-	 * @param src
-	 *            The string representation of the path
-	 * 
+	 * @param src The string representation of the path
 	 * @see ClientProtocol#getContentSummary(String)
 	 */
 	ContentSummary getContentSummary(String src) throws IOException {
