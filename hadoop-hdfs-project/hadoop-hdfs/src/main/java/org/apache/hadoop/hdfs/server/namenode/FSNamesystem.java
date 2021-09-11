@@ -1311,13 +1311,14 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     }
     
     blockManager.setPostponeBlocksFromFuture(true);
-
     // Disable quota checks while in standby.
     dir.disableQuotaChecks();
-    //todo 创建editLogTailer 用于从journalNode 拉取元数据日志操作信息
+    //todo 创建editLogTailer线 程 用于从journalNode 拉取元数据日志操作信息
     editLogTailer = new EditLogTailer(this, conf);
     editLogTailer.start();
+    //todo standbyShouldCheckpoint 表示standby节点是否进行checkpoint检查 默认是 true
     if (standbyShouldCheckpoint) {
+      //todo 创建一个StandbyCheckpointer 线程 每隔60s检查一次
       standbyCheckpointer = new StandbyCheckpointer(conf, this);
       standbyCheckpointer.start();
     }
@@ -3931,8 +3932,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
    * Create all the necessary directories
    */
   //创建目录
-  boolean mkdirs(String src, PermissionStatus permissions,
-      boolean createParent) throws IOException {
+  boolean mkdirs(String src, PermissionStatus permissions, boolean createParent) throws IOException {
     HdfsFileStatus auditStat = null;
     checkOperation(OperationCategory.WRITE);
     writeLock();

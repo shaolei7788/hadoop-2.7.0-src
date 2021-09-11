@@ -231,7 +231,7 @@ public class TransferFsImage {
   public static void uploadImageFromStorage(URL fsName, Configuration conf,
       NNStorage storage, NameNodeFile nnf, long txid, Canceler canceler)
       throws IOException {
-	  //TODO
+	  //TODO imagetransfer
     URL url = new URL(fsName, ImageServlet.PATH_SPEC);
     long startTime = Time.monotonicNow();
     try {

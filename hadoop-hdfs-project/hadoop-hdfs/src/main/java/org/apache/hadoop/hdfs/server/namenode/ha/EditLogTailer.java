@@ -204,9 +204,9 @@ public class EditLogTailer {
     // deadlock.
     namesystem.writeLockInterruptibly();
     try {
-    	//TODO namesystem=FSNamesystem 加载当前自己的元数据日志
+      //TODO namesystem = FSNamesystem 加载当前自己的元数据日志
       FSImage image = namesystem.getFSImage();
-      //TODO StandByNamenoe 获取当前的元数据日志的最后一条日志的事务ID是多少
+      //TODO StandByNameNode 获取当前的元数据日志的最后一条日志的事务ID是多少
       //1000
       long lastTxnId = image.getLastAppliedTxId();
       
@@ -215,11 +215,11 @@ public class EditLogTailer {
       }
       Collection<EditLogInputStream> streams;
       try {
-    	  //todo 这个地方是重要的代码
-    	  // 需要去journlanode上面去读取元数据
-    	  // 现在的事务id 1000，所以我去journlanode上面去读取
-    	  // 日志的时候，只需要去读取 1001后面的日志就可以。
-        //TODO 设置获取Journalnode获取日志的流
+        //todo 这个地方是重要的代码
+        // 需要去journlanode上面去读取元数据
+        // 现在的事务id 1000，所以我去journlanode上面去读取
+        // 日志的时候，只需要去读取 1001后面的日志就可以。
+        // 设置获取Journalnode获取日志的流
         // editLog = FSEditLog
         streams = editLog.selectInputStreams(lastTxnId + 1, 0, null, false);
       } catch (IOException ioe) {
@@ -322,8 +322,7 @@ public class EditLogTailer {
           // There's no point in triggering a log roll if the Standby hasn't
           // read any more transactions since the last time a roll was
           // triggered. 
-          if (tooLongSinceLastLoad() &&
-              lastRollTriggerTxId < lastLoadedTxnId) {
+          if (tooLongSinceLastLoad() && lastRollTriggerTxId < lastLoadedTxnId) {
         	  //回滚
             triggerActiveLogRoll();
           }

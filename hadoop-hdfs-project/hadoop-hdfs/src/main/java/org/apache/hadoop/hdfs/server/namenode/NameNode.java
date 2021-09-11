@@ -669,7 +669,7 @@ public class NameNode implements NameNodeStatusMXBean {
      *        50070
      */
     if (NamenodeRole.NAMENODE == role) {
-      //TODO 启动HTTPServer
+      //TODO 启动HTTPServer  StandByNameNode 把checkpoint元数据信息发给 ActiveNameNode 就是通过httpServer
       startHttpServer(conf);
     }
 
@@ -856,9 +856,10 @@ public class NameNode implements NameNodeStatusMXBean {
     String namenodeId = HAUtil.getNameNodeId(conf, nsId);
     //判断是否开启HA
     this.haEnabled = HAUtil.isHAEnabled(conf, nsId);
-    //根据启动参数判断当前NameNode的HA状态是Active还是Standby。
-    //如果没有开启HA则为Active，开启HA时一般初始均为Standby，
-    //如果启动参数为upgrade或者upgradeonly，也作为Active处理
+    //todo 根据启动参数判断当前NameNode的HA状态是Active还是Standby。
+    // 如果没有开启HA则为Active，开启HA时一般初始均为Standby，
+    // 如果启动参数为upgrade或者upgradeonly，也作为Active处理
+    // 如果是ha state = StandbyState 不是ha则是ActiveState
     state = createHAState(getStartupOption(conf));
     this.allowStaleStandbyReads = HAUtil.shouldAllowStandbyReads(conf);
     this.haContext = createHAContext();
@@ -872,6 +873,7 @@ public class NameNode implements NameNodeStatusMXBean {
         //对FSNamesystem加写锁
         haContext.writeLock();
         state.prepareToEnterState(haContext);
+        //todo  ha则调用 StandbyState#enterState  里面会创建EditLogTailer线程 从JournalNode 读取editlog日志
         state.enterState(haContext);
       } finally {
         haContext.writeUnlock();
@@ -1856,6 +1858,7 @@ public class NameNode implements NameNodeStatusMXBean {
     @Override
     public void startStandbyServices() throws IOException {
       try {
+        //todo 开始standby服务
         namesystem.startStandbyServices(conf);
       } catch (Throwable t) {
         doImmediateShutdown(t);

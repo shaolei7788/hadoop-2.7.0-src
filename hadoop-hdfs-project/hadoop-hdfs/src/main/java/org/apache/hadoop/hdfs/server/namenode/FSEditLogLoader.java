@@ -141,8 +141,7 @@ public class FSEditLogLoader {
       long startTime = monotonicNow();
       FSImage.LOG.info("Start loading edits file " + edits.getName());
       //TODO 重要代码
-      long numEdits = loadEditRecords(edits, false, expectedStartingTxId,
-          startOpt, recovery);
+      long numEdits = loadEditRecords(edits, false, expectedStartingTxId, startOpt, recovery);
       FSImage.LOG.info("Edits file " + edits.getName() 
           + " of size " + edits.length() + " edits # " + numEdits 
           + " loaded in " + (monotonicNow()-startTime)/1000 + " seconds");
@@ -192,7 +191,6 @@ public class FSEditLogLoader {
             /**
              *
              * 读取元数据日志（到了journalnode）
-             *
              * 至于是如何读取的，我们等一下。
              * 2.7.0
              */
@@ -236,12 +234,10 @@ public class FSEditLogLoader {
           }
           try {
             if (LOG.isTraceEnabled()) {
-              LOG.trace("op=" + op + ", startOpt=" + startOpt
-                  + ", numEdits=" + numEdits + ", totalEdits=" + totalEdits);
+              LOG.trace("op=" + op + ", startOpt=" + startOpt + ", numEdits=" + numEdits + ", totalEdits=" + totalEdits);
             }
             //TODO 把获取到的元数据作用到自己的元数据里
-            long inodeId = applyEditLogOp(op, fsDir, startOpt,
-                in.getVersion(true), lastInodeId);
+            long inodeId = applyEditLogOp(op, fsDir, startOpt, in.getVersion(true), lastInodeId);
             if (lastInodeId < inodeId) {
               lastInodeId = inodeId;
             }

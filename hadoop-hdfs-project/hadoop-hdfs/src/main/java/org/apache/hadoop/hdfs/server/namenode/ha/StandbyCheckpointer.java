@@ -212,12 +212,11 @@ public class StandbyCheckpointer {
     // See HDFS-4816
     
     //开启了一个异步的线程
-    ExecutorService executor =
-        Executors.newSingleThreadExecutor(uploadThreadFactory);
+    ExecutorService executor = Executors.newSingleThreadExecutor(uploadThreadFactory);
     Future<Void> upload = executor.submit(new Callable<Void>() {
       @Override
       public Void call() throws IOException {
-    	  //这个操作就要把刚刚从内存里面的元数据持持久化到磁盘上面的 那个份数据
+    	  //这个操作就要把刚刚从内存里面的元数据持持久化到磁盘上面的元数据
     	  //上传到 active的namenode上面去。
         TransferFsImage.uploadImageFromStorage(activeNNAddress, conf,
             namesystem.getFSImage().getStorage(), imageType, txid, canceler);
@@ -337,8 +336,8 @@ public class StandbyCheckpointer {
           }
           
           final long now = monotonicNow();
-          //TODO checkpoint条件一 数量 10000
-          //这儿是计算以下，我们上一次checkpoint 现在最新的数据差了多少数据？
+          //TODO checkpoint条件一 数量 100万  内存跟FSImage磁盘文件中相差的数据量 内存比FSImage磁盘文件多
+          //这儿是计算以下，我们上一次checkpoint 跟现在最新的数据差了多少数据？
           //或者说大概的意思就是说我们现在有多少条日志没有checkpoint了。
           final long uncheckpointed = countUncheckpointedTxns();
           //TODO checkpoint条件二
@@ -362,7 +361,6 @@ public class StandbyCheckpointer {
             LOG.info("Triggering checkpoint because it has been " +
                 secsSinceLast + " seconds since the last checkpoint, which " +
                 "exceeds the configured interval " + checkpointConf.getPeriod());
-            //TODO
             needCheckpoint = true;
           }
           

@@ -258,10 +258,9 @@ public class NameNodeHttpServer {
     httpServer.addInternalServlet("fsck", "/fsck", FsckServlet.class,
         true);
     //TODO 上传元数据的请求
-    //SecondaryNameNode/StandByNamenode合并出来的FSImage需要替换Active NameNode的fsimage
-    //发送的就是http的请求，请求就会转发给这个servlet
-    httpServer.addInternalServlet("imagetransfer", ImageServlet.PATH_SPEC,
-            ImageServlet.class, true);
+    // SecondaryNameNode/StandByNamenode合并出来的FSImage需要替换Active NameNode的fsimage
+    // 发送的就是http的请求，请求就会转发给这个servlet
+    httpServer.addInternalServlet("imagetransfer", ImageServlet.PATH_SPEC, ImageServlet.class, true);
     //TODO 我们可以在50070界面上浏览目录信息，就是因为这儿有这个servlet
     // http://hadoop1:50070/listpahts/?path=/usr
     httpServer.addInternalServlet("listPaths", "/listPaths/*",

@@ -51,26 +51,26 @@ class FSDirMkdirOp {
      *  hdfs dfs -ls /
      *  目录树/权限树/部门管理
      */
-    FSDirectory fsd = fsn.getFSDirectory();
+    FSDirectory fsDirectory = fsn.getFSDirectory();
     if(NameNode.stateChangeLog.isDebugEnabled()) {
       NameNode.stateChangeLog.debug("DIR* NameSystem.mkdirs: " + src);
     }
     if (!DFSUtil.isValidName(src)) {
       throw new InvalidPathException(src);
     }
-    FSPermissionChecker pc = fsd.getPermissionChecker();
+    FSPermissionChecker pc = fsDirectory.getPermissionChecker();
     byte[][] pathComponents = FSDirectory.getPathComponentsForReservedPath(src);
-    fsd.writeLock();
+    fsDirectory.writeLock();
     try {
       /**
        * hadoop fs -mkdir /user/hive/warehouse/data/mytable
        * fsSystem.mkdirs(new Path("/user/hive/warehouse/data/mytable"))
        */
     	//TODO 解析要创建目录的路径 /user/hive/warehouse/data/mytable
-      src = fsd.resolvePath(pc, src, pathComponents);
-      INodesInPath iip = fsd.getINodesInPath4Write(src);
-      if (fsd.isPermissionEnabled()) {
-        fsd.checkTraverse(pc, iip);
+      src = fsDirectory.resolvePath(pc, src, pathComponents);
+      INodesInPath iip = fsDirectory.getINodesInPath4Write(src);
+      if (fsDirectory.isPermissionEnabled()) {
+        fsDirectory.checkTraverse(pc, iip);
       }
       //  /user/hive/warehouse
       //  /user/hive/warehouse/data/mytable
@@ -88,12 +88,12 @@ class FSDirMkdirOp {
       // 如果为空 则是已经存在的路径如  /user/hive/warehouse
       INodesInPath existing = lastINode != null ? iip : iip.getExistingINodes();
       if (lastINode == null) {
-        if (fsd.isPermissionEnabled()) {
-          fsd.checkAncestorAccess(pc, iip, FsAction.WRITE);
+        if (fsDirectory.isPermissionEnabled()) {
+          fsDirectory.checkAncestorAccess(pc, iip, FsAction.WRITE);
         }
 
         if (!createParent) {
-          fsd.verifyParentDir(iip, src);
+          fsDirectory.verifyParentDir(iip, src);
         }
 
         // validate that we have enough inodes. This is, at best, a
@@ -112,21 +112,21 @@ class FSDirMkdirOp {
           List<String> ancestors = nonExisting.subList(0, length - 1);
           // Ensure that the user can traversal the path by adding implicit
           // u+wx permission to all ancestor directories
-          existing = createChildrenDirectories(fsd, existing, ancestors,
+          existing = createChildrenDirectories(fsDirectory, existing, ancestors,
               addImplicitUwx(permissions, permissions));
           if (existing == null) {
             throw new IOException("Failed to create directory: " + src);
           }
         }
         //TODO 如果只需要创建一个目录就走这儿
-        if ((existing = createChildrenDirectories(fsd, existing,
+        if ((existing = createChildrenDirectories(fsDirectory, existing,
             nonExisting.subList(length - 1, length), permissions)) == null) {
           throw new IOException("Failed to create directory: " + src);
         }
       }
-      return fsd.getAuditFileInfo(existing);
+      return fsDirectory.getAuditFileInfo(existing);
     } finally {
-      fsd.writeUnlock();
+      fsDirectory.writeUnlock();
     }
   }
 
@@ -144,7 +144,7 @@ class FSDirMkdirOp {
    * relative path. Or return null if there are errors.
    */
   static Map.Entry<INodesInPath, String> createAncestorDirectories(
-      FSDirectory fsd, INodesInPath iip, PermissionStatus permission)
+      FSDirectory fsDirectory, INodesInPath iip, PermissionStatus permission)
       throws IOException {
     final String last = new String(iip.getLastLocalName(), Charsets.UTF_8);
     INodesInPath existing = iip.getExistingINodes();
@@ -156,7 +156,7 @@ class FSDirMkdirOp {
       INode parentINode = existing.getLastINode();
       // Ensure that the user can traversal the path by adding implicit
       // u+wx permission to all ancestor directories
-      existing = createChildrenDirectories(fsd, existing, directories,
+      existing = createChildrenDirectories(fsDirectory, existing, directories,
           addImplicitUwx(parentINode.getPermissionStatus(), permission));
       if (existing == null) {
         return null;
@@ -169,7 +169,7 @@ class FSDirMkdirOp {
    * Create the directory {@code parent} / {@code children} and all ancestors
    * along the path.
    *
-   * @param fsd FSDirectory
+   * @param fsDirectory FSDirectory
    * @param existing The INodesInPath instance containing all the existing
    *                 ancestral INodes
    * @param children The relative path from the parent towards children,
@@ -182,15 +182,15 @@ class FSDirMkdirOp {
    * the returned INodesInPath. The function return null if the operation has
    * failed.
    */
-  private static INodesInPath createChildrenDirectories(FSDirectory fsd,
+  private static INodesInPath createChildrenDirectories(FSDirectory fsDirectory,
       INodesInPath existing, List<String> children, PermissionStatus perm)
       throws IOException {
-    assert fsd.hasWriteLock();
+    assert fsDirectory.hasWriteLock();
 
     for (String component : children) {
     	//TODO 一个目录一个目录去创建
         //如果我们只创建的目录只有一个那么这个循环就只运行一次。
-        existing = createSingleDirectory(fsd, existing, component, perm);
+        existing = createSingleDirectory(fsDirectory, existing, component, perm);
         if (existing == null) {
           return null;
         }
@@ -198,17 +198,17 @@ class FSDirMkdirOp {
     return existing;
   }
 
-  static void mkdirForEditLog(FSDirectory fsd, long inodeId, String src,
+  static void mkdirForEditLog(FSDirectory fsDirectory, long inodeId, String src,
       PermissionStatus permissions, List<AclEntry> aclEntries, long timestamp)
       throws QuotaExceededException, UnresolvedLinkException, AclException,
       FileAlreadyExistsException {
-    assert fsd.hasWriteLock();
-    INodesInPath iip = fsd.getINodesInPath(src, false);
+    assert fsDirectory.hasWriteLock();
+    INodesInPath iip = fsDirectory.getINodesInPath(src, false);
     final byte[] localName = iip.getLastLocalName();
     final INodesInPath existing = iip.getParentINodesInPath();
     Preconditions.checkState(existing.getLastINode() != null);
     //TODO 重要代码
-    unprotectedMkdir(fsd, inodeId, existing, localName, permissions, aclEntries,
+    unprotectedMkdir(fsDirectory, inodeId, existing, localName, permissions, aclEntries,
         timestamp);
   }
   /**
@@ -218,20 +218,20 @@ class FSDirMkdirOp {
    *    （内存里面的元数据 -》 fsimage -> namespace ->文件目录树）
    * 2）磁盘里面需要记录一条日志
    * 
-   * @param fsd
+   * @param fsDirectory
    * @param existing
    * @param localName
    * @param perm
    * @return
    * @throws IOException
    */
-  private static INodesInPath createSingleDirectory(FSDirectory fsd,
+  private static INodesInPath createSingleDirectory(FSDirectory fsDirectory,
       INodesInPath existing, String localName, PermissionStatus perm)
       throws IOException {
-    assert fsd.hasWriteLock();
+    assert fsDirectory.hasWriteLock();
     //TODO  更新文件目录树，这棵目录树是存在于内存中的，有FSNameSystem管理的
     //更新内存里面的数据
-    existing = unprotectedMkdir(fsd, fsd.allocateNewInodeId(), existing, localName.getBytes(Charsets.UTF_8), perm, null, now());
+    existing = unprotectedMkdir(fsDirectory, fsDirectory.allocateNewInodeId(), existing, localName.getBytes(Charsets.UTF_8), perm, null, now());
     if (existing == null) {
       return null;
     }
@@ -242,7 +242,7 @@ class FSDirMkdirOp {
     String cur = existing.getPath();
     //TODO 把元数据信息记录到磁盘上（但是一开始先写到内存）
     //往磁盘上面记录元数据日志
-    fsd.getEditLog().logMkDir(cur, newNode);
+    fsDirectory.getEditLog().logMkDir(cur, newNode);
     if (NameNode.stateChangeLog.isDebugEnabled()) {
       NameNode.stateChangeLog.debug("mkdirs: created directory " + cur);
     }
@@ -263,11 +263,11 @@ class FSDirMkdirOp {
   /**
    * create a directory at path specified by parent
    */
-  private static INodesInPath unprotectedMkdir(FSDirectory fsd, long inodeId,
+  private static INodesInPath unprotectedMkdir(FSDirectory fsDirectory, long inodeId,
       INodesInPath parent, byte[] name, PermissionStatus permission,
       List<AclEntry> aclEntries, long timestamp)
       throws QuotaExceededException, AclException, FileAlreadyExistsException {
-    assert fsd.hasWriteLock();
+    assert fsDirectory.hasWriteLock();
     assert parent.getLastINode() != null;
     if (!parent.getLastINode().isDirectory()) {
       throw new FileAlreadyExistsException("Parent path is not a directory: " +
@@ -286,7 +286,7 @@ class FSDirMkdirOp {
     // /user/hive/warehouse/
     // /user/hive/warehouse/data
     //TODO 往文件目录树 该添加目录的地方添加节点
-    INodesInPath iip = fsd.addLastINode(parent, dir, true);
+    INodesInPath iip = fsDirectory.addLastINode(parent, dir, true);
     if (iip != null && aclEntries != null) {
       AclStorage.updateINodeAcl(dir, aclEntries, Snapshot.CURRENT_STATE_ID);
     }

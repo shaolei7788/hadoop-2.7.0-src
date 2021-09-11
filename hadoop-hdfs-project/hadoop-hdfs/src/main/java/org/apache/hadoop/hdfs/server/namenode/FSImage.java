@@ -808,8 +808,7 @@ public class FSImage implements Closeable {
   /**
    * Load the specified list of edit files into the image.
    */
-  public long loadEdits(Iterable<EditLogInputStream> editStreams,
-      FSNamesystem target) throws IOException {
+  public long loadEdits(Iterable<EditLogInputStream> editStreams, FSNamesystem target) throws IOException {
     //TODO
     return loadEdits(editStreams, target, null, null);
   }
@@ -850,8 +849,7 @@ public class FSImage implements Closeable {
     } finally {
       FSEditLog.closeAllStreams(editStreams);
       // update the counts
-      updateCountForQuota(target.getBlockManager().getStoragePolicySuite(),
-          target.dir.rootDir);
+      updateCountForQuota(target.getBlockManager().getStoragePolicySuite(), target.dir.rootDir);
     }
     prog.endPhase(Phase.LOADING_EDITS);
     return lastAppliedTxId - prevLastAppliedTxId;

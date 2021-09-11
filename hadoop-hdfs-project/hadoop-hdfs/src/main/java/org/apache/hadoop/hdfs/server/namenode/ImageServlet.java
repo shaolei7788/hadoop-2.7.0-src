@@ -499,9 +499,8 @@ public class ImageServlet extends HttpServlet {
                           parsedParams.getFileSize(), getThrottler(conf));
                   //TODO 步骤三：
                   // 会把接收过来的元数据 替换 现在已有的fsimage文件。
-                  //对文件进行重命名
-                  nnImage.saveDigestAndRenameCheckpointImage(nnf, txid,
-                      downloadImageDigest);
+                  // 对文件进行重命名
+                  nnImage.saveDigestAndRenameCheckpointImage(nnf, txid, downloadImageDigest);
                   // Metrics non-null only when used inside name node
                   if (metrics != null) {
                     long elapsed = monotonicNow() - start;
