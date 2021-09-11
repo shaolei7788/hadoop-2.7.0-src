@@ -2848,7 +2848,7 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory, DataEncr
 		}
 		TraceScope scope = Trace.startSpan("mkdir", traceSampler);
 		try {
-			//TODO namenode=ClientProtocol 走的Hadoop的RPC，调用服务端的代码
+			//TODO namenode = ClientProtocol 走的Hadoop的RPC，调用服务端的代码
 			return namenode.mkdirs(src, absPermission, createParent);
 		} catch (RemoteException re) {
 			throw re.unwrapRemoteException(AccessControlException.class, InvalidPathException.class,
