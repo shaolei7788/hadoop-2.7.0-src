@@ -629,7 +629,6 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory, DataEncr
 			this.dtService = proxyInfo.getDelegationTokenService();
 			this.namenode = proxyInfo.getProxy();
 		}
-
 		String localInterfaces[] = conf.getTrimmedStrings(DFSConfigKeys.DFS_CLIENT_LOCAL_INTERFACES);
 		localInterfaceAddrs = getLocalInterfaceAddrs(localInterfaces);
 		if (LOG.isDebugEnabled() && 0 != localInterfaces.length) {
