@@ -124,8 +124,7 @@ class BPOfferService {
   }
 
   BPOfferService(List<InetSocketAddress> nnAddrs, DataNode dn) {
-    Preconditions.checkArgument(!nnAddrs.isEmpty(),
-        "Must pass at least one NN.");
+    Preconditions.checkArgument(!nnAddrs.isEmpty(), "Must pass at least one NN.");
     this.dn = dn;
     //
     for (InetSocketAddress addr : nnAddrs) {
@@ -287,10 +286,10 @@ class BPOfferService {
   void start() {
 	  //TODO 一个bpOfferService里面就会有多个Actor
     for (BPServiceActor actor : bpServices) {
-    	//TODO DataNode进行注册和心跳
-      //第一个联邦 hadoop1,hadoop2
-      //actor1  -> hadoop1
-      //actor2  -> hadoop2
+      //TODO DataNode进行注册和心跳
+      // 第一个联邦 hadoop1,hadoop2
+      // actor1  -> hadoop1
+      // actor2  -> hadoop2
       actor.start();
     }
   }

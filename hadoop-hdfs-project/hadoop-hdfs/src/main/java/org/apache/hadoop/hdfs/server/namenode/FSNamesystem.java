@@ -676,7 +676,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     // 获取namespace路径和editLog路径,构造FSImage对象，FSImage下一节进行详细介绍
     FSImage fsImage = new FSImage(conf,
             // 默认是从 DFS_NAMENODE_NAME_DIR_KEY 加载fsimage文件
-            //dfs.namenode.name.dir
+            //dfs.namenode.name.dir  /opt/module/hadoop-2.7.2/data/tmp/dfs/name
             FSNamesystem.getNamespaceDirs(conf),
             // 默认是从 DFS_NAMENODE_EDITS_DIR_KEY 加载edits文件
             //dfs.namenode.edits.dir
@@ -741,7 +741,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     }
     boolean fair = conf.getBoolean("dfs.namenode.fslock.fair", true);
     LOG.info("fsLock is fair:" + fair);
-    //创建FSNamesystem全局锁，
+    //todo 创建FSNamesystem全局锁，
     fsLock = new FSNamesystemLock(fair);
     cond = fsLock.writeLock().newCondition();
     cpLock = new ReentrantLock();
@@ -749,10 +749,12 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     //fsimage对象负责namespace元数据的的持久化和加载fsimage和editlog文件
     this.fsImage = fsImage;
     try {
+      //5s
       resourceRecheckInterval = conf.getLong(
           DFS_NAMENODE_RESOURCE_CHECK_INTERVAL_KEY,
           DFS_NAMENODE_RESOURCE_CHECK_INTERVAL_DEFAULT);
 
+      //块管理器
       this.blockManager = new BlockManager(this, conf);
       this.datanodeStatistics = blockManager.getDatanodeManager().getDatanodeStatistics();
       this.blockIdManager = new BlockIdManager(blockManager);
@@ -848,7 +850,9 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       
       this.dtSecretManager = createDelegationTokenSecretManager(conf);
       this.dir = new FSDirectory(this, conf);
+      //快照管理
       this.snapshotManager = new SnapshotManager(dir);
+      //缓存管理
       this.cacheManager = new CacheManager(this, conf, blockManager);
       this.safeMode = new SafeModeInfo(conf);
       this.topConf = new TopConf(conf);
@@ -1098,7 +1102,8 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       //NameNode资源检查 通过core-site.xml  hdfs-site.xml两个文件，就知道了元数据存在哪儿？
       //需要检查三个目录，因为这三个目录都涉及到了元数据
       //（1）NameNode的两个目录：存储fsiamge的目录，存储editlog的目录。但是一般情况下，或者默认情况这两个使用的是同一个目录。
-      //加载了配置文件，配置文件里面有存储元数据的目录。
+      // 加载了配置文件，配置文件里面有存储元数据的目录。
+      // nnResourceChecker = NameNodeResourceChecker
       nnResourceChecker = new NameNodeResourceChecker(conf);
       //TODO 检查是否有足够的磁盘存储元数据
       checkAvailableResources();
@@ -1107,7 +1112,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       prog.beginPhase(Phase.SAFEMODE);
       prog.setTotal(Phase.SAFEMODE, STEP_AWAITING_REPORTED_BLOCKS, getCompleteBlocksTotal());
       //TODO HDFS的安全模式
-      //大家可以根据自己的经验思考一下，一个HDFS启动的时候，什么样的情况下会处于安全模式？
+      // 大家可以根据自己的经验思考一下，一个HDFS启动的时候，什么样的情况下会处于安全模式？
       setBlockTotal();
       //TODO 启动重要服务
       blockManager.activate(conf);
@@ -4567,7 +4572,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   void registerDatanode(DatanodeRegistration nodeReg) throws IOException {
     writeLock();
     try {
-      //TODO DataNodeManager处理关于DataNode的事
+      //TODO DataNodeManager处理关于DataNode的事  namenode 叫blockmanager datanode 有个blockpoolmanager
       getBlockManager().getDatanodeManager().registerDatanode(nodeReg);
       checkSafeMode();
     } finally {
@@ -4637,9 +4642,9 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   void checkAvailableResources() {
     Preconditions.checkState(nnResourceChecker != null,
         "nnResourceChecker not initialized");
-    //是否有足够的磁盘空间
-    //hasResourcesAvailable = false;
-    //TODO 如果资源不够那么就返回false
+    //TODO 是否有足够的磁盘空间
+    // hasResourcesAvailable = false;
+    // 如果资源不够那么就返回false
     hasResourcesAvailable = nnResourceChecker.hasAvailableDiskSpace();
   }
 
@@ -5377,6 +5382,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
      */
     private boolean needEnter() {
       //1000 * 0.999 =999                   //blockThreshold=999
+      // blockSafe = datanode汇报过来的complete的block个数
       return (threshold != 0 && blockSafe < blockThreshold) ||
           //默认这条件是不生效的
         (datanodeThreshold != 0 && getNumLiveDataNodes() < datanodeThreshold) ||
@@ -5395,7 +5401,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       }
       // if smmthread is already running, the block threshold must have been 
       // reached before, there is no need to enter the safe mode again
-      //TODO 判断是否进入安全模式  needEnter 核心
+      //TODO 判断是否进入安全模式  needEnter() 核心
       if (smmthread == null && needEnter()) {
         //TODO 进入安全模式
         enter();

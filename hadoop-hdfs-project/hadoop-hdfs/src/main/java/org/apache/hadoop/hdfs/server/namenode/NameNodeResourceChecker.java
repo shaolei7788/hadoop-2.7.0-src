@@ -95,9 +95,7 @@ public class NameNodeResourceChecker {
       if (availableSpace < duReserved) {
     	  //ERROR
         LOG.warn("Space available on volume '" + volume + "' is "
-            + availableSpace +
-            ", which is below the configured reserved amount " + duReserved);
-        
+            + availableSpace + ", which is below the configured reserved amount " + duReserved);
         return false;
       } else {
         return true;
@@ -119,11 +117,10 @@ public class NameNodeResourceChecker {
     this.conf = conf;
     volumes = new HashMap<String, CheckedVolume>();
     //TODO 阈值  100m
-    duReserved = conf.getLong(DFSConfigKeys.DFS_NAMENODE_DU_RESERVED_KEY,
-        DFSConfigKeys.DFS_NAMENODE_DU_RESERVED_DEFAULT);
+    duReserved = conf.getLong(DFSConfigKeys.DFS_NAMENODE_DU_RESERVED_KEY, DFSConfigKeys.DFS_NAMENODE_DU_RESERVED_DEFAULT);
     
-    Collection<URI> extraCheckedVolumes = Util.stringCollectionAsURIs(conf
-        .getTrimmedStringCollection(DFSConfigKeys.DFS_NAMENODE_CHECKED_VOLUMES_KEY));
+    Collection<URI> extraCheckedVolumes = Util.stringCollectionAsURIs(
+            conf.getTrimmedStringCollection(DFSConfigKeys.DFS_NAMENODE_CHECKED_VOLUMES_KEY));
     
     Collection<URI> localEditDirs = Collections2.filter(
         FSNamesystem.getNamespaceEditsDirs(conf),
@@ -188,8 +185,7 @@ public class NameNodeResourceChecker {
    */
   public boolean hasAvailableDiskSpace() {
 	      //关键调用的是这儿的代码
-    return NameNodeResourcePolicy.areResourcesAvailable(volumes.values(),
-        minimumRedundantVolumes);
+    return NameNodeResourcePolicy.areResourcesAvailable(volumes.values(), minimumRedundantVolumes);
   }
 
   /**

@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 class PendingReplicationBlocks {
   private static final Logger LOG = BlockManager.LOG;
 
+  //todo 保存所有数据块复制任务 将超过指定时间超过5分钟没有确认的复制请求加入超时队列
   private final Map<Block, PendingBlockInfo> pendingReplications;
   private final ArrayList<Block> timedOutItems;
   Daemon timerThread = null;
@@ -215,6 +216,7 @@ class PendingReplicationBlocks {
     @Override
     public void run() {
       while (fsRunning) {
+        //DEFAULT_RECHECK_INTERVAL = 5min
         long period = Math.min(DEFAULT_RECHECK_INTERVAL, timeout);
         try {
           pendingReplicationCheck();
@@ -232,8 +234,7 @@ class PendingReplicationBlocks {
      */
     void pendingReplicationCheck() {
       synchronized (pendingReplications) {
-        Iterator<Map.Entry<Block, PendingBlockInfo>> iter =
-                                    pendingReplications.entrySet().iterator();
+        Iterator<Map.Entry<Block, PendingBlockInfo>> iter = pendingReplications.entrySet().iterator();
         long now = monotonicNow();
         if(LOG.isDebugEnabled()) {
           LOG.debug("PendingReplicationMonitor checking Q");

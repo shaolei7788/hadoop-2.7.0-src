@@ -203,8 +203,7 @@ class HeartbeatManager implements DatanodeStatistics {
 
   synchronized void addDatanode(final DatanodeDescriptor d) {
     // update in-service node count
-	  
-	  //往各种数据结构里面存东西
+    //往各种数据结构里面存东西
     stats.add(d);
     //往datanodes list结构里面存进去了datanode的信息
     datanodes.add(d);
@@ -225,8 +224,7 @@ class HeartbeatManager implements DatanodeStatistics {
       VolumeFailureSummary volumeFailureSummary) {
     stats.subtract(node);
     //TODO 重要的代码
-    node.updateHeartbeat(reports, cacheCapacity, cacheUsed,
-      xceiverCount, failedVolumes, volumeFailureSummary);
+    node.updateHeartbeat(reports, cacheCapacity, cacheUsed, xceiverCount, failedVolumes, volumeFailureSummary);
     stats.add(node);
   }
 
@@ -296,9 +294,9 @@ class HeartbeatManager implements DatanodeStatistics {
          *
          */
         for (DatanodeDescriptor d : datanodes) {
-        	//这儿就是判断一个datanode是否dead了
-          //什么情况下，50070界面，或者说namenode就认为datanode dead了？
-
+          // 这儿就是判断一个datanode是否dead了
+          // 什么情况下，50070界面，或者说namenode就认为datanode dead了？
+          //todo isDatanodeDead 判断一个datanode是的死活的计算公式在这个方法里
           if (dead == null && dm.isDatanodeDead(d)) {
             stats.incrExpiredHeartbeats();
             dead = d;
@@ -318,7 +316,6 @@ class HeartbeatManager implements DatanodeStatistics {
               failedStorage = storageInfo;
             }
           }
-
         }
         
         // Set the number of stale nodes in the DatanodeManager
@@ -373,6 +370,7 @@ class HeartbeatManager implements DatanodeStatistics {
       while(namesystem.isRunning()) {
         try {
           final long now = Time.monotonicNow();
+          // heartbeatRecheckInterval = 5min
           if (lastHeartbeatCheck + heartbeatRecheckInterval < now) { //5
         	  //TODO 心跳检查
             heartbeatCheck();
@@ -390,7 +388,7 @@ class HeartbeatManager implements DatanodeStatistics {
           LOG.error("Exception while checking heartbeat", e);
         }
         try {
-        	//每隔5秒钟去检查一次
+          //每隔5秒钟去检查一次
           Thread.sleep(5000);  // 5 seconds
         } catch (InterruptedException ie) {
         }

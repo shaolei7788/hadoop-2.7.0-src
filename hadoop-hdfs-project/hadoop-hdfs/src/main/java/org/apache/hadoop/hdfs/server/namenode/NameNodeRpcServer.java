@@ -1255,9 +1255,9 @@ class NameNodeRpcServer implements NamenodeProtocols {
   }
 
 
-  @Override // DatanodeProtocol
-  public DatanodeRegistration registerDatanode(DatanodeRegistration nodeReg)
-      throws IOException {
+  //todo DatanodeProtocol  datanode跟namenode通信的协议
+  @Override
+  public DatanodeRegistration registerDatanode(DatanodeRegistration nodeReg) throws IOException {
 	  //是否启动起来
     checkNNStartup();
     verifySoftwareVersion(nodeReg);
@@ -1266,7 +1266,8 @@ class NameNodeRpcServer implements NamenodeProtocols {
     return nodeReg;
   }
 
-  @Override // DatanodeProtocol
+  // DatanodeProtocol
+  @Override
   public HeartbeatResponse sendHeartbeat(DatanodeRegistration nodeReg,
       StorageReport[] report, long dnCacheCapacity, long dnCacheUsed,
       int xmitsInProgress, int xceiverCount,

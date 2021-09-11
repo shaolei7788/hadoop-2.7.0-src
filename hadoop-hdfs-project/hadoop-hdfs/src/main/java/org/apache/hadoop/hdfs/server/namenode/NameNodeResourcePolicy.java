@@ -57,15 +57,19 @@ final class NameNodeResourcePolicy {
     int disabledRedundantResourceCount = 0;
     //遍历每个目录
     for (CheckableNameNodeResource resource : resources) {
+
       if (!resource.isRequired()) {
+        //非必须资源   redundant 冗余的; 多余的
         redundantResourceCount++;
-        if (!resource.isResourceAvailable()) {
+        //todo resource = CheckedVolume#isResourceAvailable
+        if (! resource.isResourceAvailable()) {
           disabledRedundantResourceCount++;
         }
       } else {
+        //必须资源
         requiredResourceCount++;
         //TODO 判断磁盘资源是否充足
-        if (!    resource.isResourceAvailable()) {
+        if (!resource.isResourceAvailable()) {
           // Short circuit - a required resource is not available.
           return false;
         }
@@ -77,8 +81,7 @@ final class NameNodeResourcePolicy {
       // required resources available.
       return requiredResourceCount > 0;
     } else {
-      return redundantResourceCount - disabledRedundantResourceCount >=
-          minimumRedundantResources;
+      return redundantResourceCount - disabledRedundantResourceCount >= minimumRedundantResources;
     }
   }
 }

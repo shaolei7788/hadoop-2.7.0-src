@@ -676,11 +676,12 @@ public class NameNode implements NameNodeStatusMXBean {
     this.spanReceiverHost = SpanReceiverHost.getInstance(conf);
 
     //TODO 加载元数据
-    //加载元数据这个事，目前对集群刚启动的时候，我们不做重点分析。
-    //在后面分析到管理元数据的时候，我们会回过头来在分析。
-    //为什么现在不分析？
-    //根据场景驱动，集群刚初始化启动，所以其实没什么元数据。
+    // 加载元数据这个事，目前对集群刚启动的时候，我们不做重点分析。
+    // 在后面分析到管理元数据的时候，我们会回过头来在分析。
+    // 为什么现在不分析？
+    // 根据场景驱动，集群刚初始化启动，所以其实没什么元数据。
     // 加载FsNamesystem,从磁盘加载fsimage。FsNamesystem负责文件系统的管理，
+    // 会创建 namesystem fsimage
     loadNamesystem(conf);
     
     //TODO 重要，这个就是Hadoop RPC
@@ -1496,12 +1497,14 @@ public class NameNode implements NameNodeStatusMXBean {
         terminate(aborted ? 1 : 0);
         return null; // avoid javac warning
       }
+
       case GENCLUSTERID: {
         System.err.println("Generating new cluster id:");
         System.out.println(NNStorage.newClusterID());
         terminate(0);
         return null;
       }
+      //升级
       case FINALIZE: {
         System.err.println("Use of the argument '" + StartupOption.FINALIZE +
             "' is no longer supported. To finalize an upgrade, start the NN " +
@@ -1509,6 +1512,7 @@ public class NameNode implements NameNodeStatusMXBean {
         terminate(1);
         return null; // avoid javac warning
       }
+      //回滚上一次升级
       case ROLLBACK: {
         boolean aborted = doRollback(conf, true);
         terminate(aborted ? 1 : 0);
@@ -1520,6 +1524,7 @@ public class NameNode implements NameNodeStatusMXBean {
         terminate(rc);
         return null; // avoid warning
       }
+      //初始化editlog的共享存储空间，从active namenode中拷贝足够的editlog数据，使得standby节点能够顺利启动
       case INITIALIZESHAREDEDITS: {
         boolean aborted = initializeSharedEdits(conf,
             startOpt.getForceFormat(),
@@ -1527,21 +1532,26 @@ public class NameNode implements NameNodeStatusMXBean {
         terminate(aborted ? 1 : 0);
         return null; // avoid warning
       }
+      //启动backup节点 直接构造一个BackupNode对象并返回
       case BACKUP:
+      //启动checkpoint节点 直接构造一个BackupNode对象并返回
       case CHECKPOINT: {
         NamenodeRole role = startOpt.toNodeRole();
         DefaultMetricsSystem.initialize(role.toString().replace(" ", ""));
         return new BackupNode(conf, role);
       }
+      //恢复损坏的元数据以及文件系统
       case RECOVER: {
         NameNode.doRecovery(startOpt, conf);
         return null;
       }
+      //确认配置文件夹存在，并且打印fsimage文件和文件系统的元数据版本
       case METADATAVERSION: {
         printMetadataVersion(conf);
         terminate(0);
         return null; // avoid javac warning
       }
+      //升级namenode,升级完成后关闭namenode
       case UPGRADEONLY: {
         DefaultMetricsSystem.initialize("NameNode");
         new NameNode(conf);
@@ -1634,6 +1644,10 @@ public class NameNode implements NameNodeStatusMXBean {
    * 	这样blockThreshold的值是999
    * 	现在集群起来了以后，发现累计datanode汇报过来的complete的block个数（blockSafe）
    * 	如果小于999就让集群处于安全模式。
+   *    如果 threshold = 0 namenode 启动时不会进入安全模式
+   *    如果 threshold = 1(默认) namenode 需要等待所有的数据块上报之后才能退出安全模式
+   *    如果 threshold > 1 namenode 无法退出安全模式
+   *
    *
    * 条件二：判断存活dataNode个数是否大于配置数目
    * 	datanodeThreshold != 0 && getNumLiveDataNodes() < datanodeThreshold

@@ -94,8 +94,7 @@ public class DatanodeProtocolClientSideTranslatorPB implements
 
   public DatanodeProtocolClientSideTranslatorPB(InetSocketAddress nameNodeAddr,
       Configuration conf) throws IOException {
-    RPC.setProtocolEngine(conf, DatanodeProtocolPB.class,
-        ProtobufRpcEngine.class);
+    RPC.setProtocolEngine(conf, DatanodeProtocolPB.class, ProtobufRpcEngine.class);
     UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
     rpcProxy = createNamenode(nameNodeAddr, conf, ugi);
   }

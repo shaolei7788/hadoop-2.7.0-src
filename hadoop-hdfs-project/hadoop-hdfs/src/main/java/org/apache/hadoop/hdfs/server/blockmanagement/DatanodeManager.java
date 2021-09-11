@@ -84,7 +84,7 @@ public class DatanodeManager {
    * <p>
    * Mapping: StorageID -> DatanodeDescriptor
    */
-  //维护 StorageID -> DatanodeDescriptor 映射关系
+  //维护 datanodeuuid -> DatanodeDescriptor 映射关系
   private final NavigableMap<String, DatanodeDescriptor> datanodeMap = new TreeMap<String, DatanodeDescriptor>();
 
   /** Cluster network topology */
@@ -603,7 +603,7 @@ public class DatanodeManager {
     // remove  from host2DatanodeMap the datanodeDescriptor removed
     // from datanodeMap before adding node to host2DatanodeMap.
     synchronized(datanodeMap) {
-      //TODO  datanodeMap里面添加数据
+      //TODO  datanodeMap里面添加数据  datanodeMap 维护 datanodeuuid -> DatanodeDescriptor 映射关系
       host2DatanodeMap.remove(datanodeMap.put(node.getDatanodeUuid(), node));
     }
     //TODO 往拓扑的数据结构里面加入一条数据
@@ -863,8 +863,7 @@ public class DatanodeManager {
    * @throws UnresolvedTopologyException if the registration request is 
    *    denied because resolving datanode network location fails.
    */
-  public void registerDatanode(DatanodeRegistration nodeReg)
-      throws DisallowedDatanodeException, UnresolvedTopologyException {
+  public void registerDatanode(DatanodeRegistration nodeReg) throws DisallowedDatanodeException, UnresolvedTopologyException {
     InetAddress dnAddress = Server.getRemoteIp();
     if (dnAddress != null) {
       // Mostly called inside an RPC, update ip and peer hostname
@@ -873,8 +872,7 @@ public class DatanodeManager {
       if (checkIpHostnameInRegistration && !isNameResolved(dnAddress)) {
         // Reject registration of unresolved datanode to prevent performance
         // impact of repetitive DNS lookups later.
-        final String message = "hostname cannot be resolved (ip="
-            + ip + ", hostname=" + hostname + ")";
+        final String message = "hostname cannot be resolved (ip=" + ip + ", hostname=" + hostname + ")";
         LOG.warn("Unresolved datanode registration: " + message);
         throw new DisallowedDatanodeException(nodeReg, message);
       }
@@ -974,9 +972,8 @@ public class DatanodeManager {
         return;
       }
 
-      
-      DatanodeDescriptor nodeDescr 
-        = new DatanodeDescriptor(nodeReg, NetworkTopology.DEFAULT_RACK);
+      //todo 创建nodeDescr
+      DatanodeDescriptor nodeDescr = new DatanodeDescriptor(nodeReg, NetworkTopology.DEFAULT_RACK);
       boolean success = false;
       try {
         // resolve network location

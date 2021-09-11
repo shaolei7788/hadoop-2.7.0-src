@@ -151,11 +151,9 @@ class BlockPoolManager {
   
   void refreshNamenodes(Configuration conf)
       throws IOException {
-    LOG.info("Refresh request received for nameservices: " + conf.get
-            (DFSConfigKeys.DFS_NAMESERVICES));
+    LOG.info("Refresh request received for nameservices: " + conf.get(DFSConfigKeys.DFS_NAMESERVICES));
 
-    Map<String, Map<String, InetSocketAddress>> newAddressMap = DFSUtil
-            .getNNServiceRpcAddressesForCluster(conf);
+    Map<String, Map<String, InetSocketAddress>> newAddressMap = DFSUtil.getNNServiceRpcAddressesForCluster(conf);
 
     synchronized (refreshNamenodesLock) {
     	//TODO 重要代码
@@ -170,8 +168,9 @@ class BlockPoolManager {
    * @param addrMap
    * @throws IOException
    */
-  private void doRefreshNamenodes(
-      Map<String, Map<String, InetSocketAddress>> addrMap) throws IOException {
+  private void doRefreshNamenodes(Map<String, Map<String, InetSocketAddress>> addrMap) throws IOException {
+
+
     assert Thread.holdsLock(refreshNamenodesLock);
 
     Set<String> toRefresh = Sets.newLinkedHashSet();
@@ -192,11 +191,13 @@ class BlockPoolManager {
        * hadoop3,hadoop4 -> 联邦2  service2
        *
        */
+      //todo addrMap 保存了配置的命名空间列表
+      // bpByNameserviceId 命名空间id 与 BPOfferService的射影 保存了当前BlockPoolManager中已有的命名空间列表
       for (String nameserviceId : addrMap.keySet()) {
         if (bpByNameserviceId.containsKey(nameserviceId)) {
           toRefresh.add(nameserviceId);
         } else {
-          //TODO toAdd里面有多少有的联邦，一个联邦就是一个NameService
+          //TODO toAdd里面有多少有的联邦，一个联邦就是一个 NameService
           toAdd.add(nameserviceId);
         }
       }
@@ -222,10 +223,10 @@ class BlockPoolManager {
 
         //如果是2个联邦，那么这个地方就会有两个值
         //BPOfferService -》 一个联邦
+        // toAdd 队列中保存了需要添加到BlockPoolManager中的命名空间
         for (String nsToAdd : toAdd) {
-          ArrayList<InetSocketAddress> addrs =
-                  //如果里面做两个高可用，hdoop1,hadoop2
-            Lists.newArrayList(addrMap.get(nsToAdd).values());
+          //如果里面做两个高可用，hdoop1,hadoop2
+          ArrayList<InetSocketAddress> addrs = Lists.newArrayList(addrMap.get(nsToAdd).values());
           //TODO 重要的关系
           //一个联邦对应一个BPOfferService
           //一个联邦里面的一个NameNode就是一个BPServiceActor
@@ -233,10 +234,12 @@ class BlockPoolManager {
           //hdfs-site.xml core-site.xml
           BPOfferService bpos = createBPOS(addrs);
           bpByNameserviceId.put(nsToAdd, bpos);
+          //  blockPoolid 与 BPOfferService的射影
           offerServices.add(bpos);
         }
       }
       //TODO DataNode向NameNode进行注册和心跳
+      // 启动所有的BPOfferService,级联启动BPServiceActor
       startAll();
     }
 

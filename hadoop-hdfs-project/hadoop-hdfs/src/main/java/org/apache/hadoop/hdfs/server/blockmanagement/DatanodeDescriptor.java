@@ -399,12 +399,10 @@ public class DatanodeDescriptor extends DatanodeInfo {
   /**
    * Updates stats from datanode heartbeat.
    */
-  public void updateHeartbeat(StorageReport[] reports, long cacheCapacity,
-      long cacheUsed, int xceiverCount, int volFailures,
+  public void updateHeartbeat(StorageReport[] reports, long cacheCapacity, long cacheUsed, int xceiverCount, int volFailures,
       VolumeFailureSummary volumeFailureSummary) {
     //TODO 重要代码
-    updateHeartbeatState(reports, cacheCapacity, cacheUsed, xceiverCount,
-        volFailures, volumeFailureSummary);
+    updateHeartbeatState(reports, cacheCapacity, cacheUsed, xceiverCount, volFailures, volumeFailureSummary);
     heartbeatedSinceRegistration = true;
   }
 

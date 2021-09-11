@@ -268,7 +268,9 @@ public class BlockManager {
   public BlockManager(final Namesystem namesystem, final Configuration conf)
     throws IOException {
     this.namesystem = namesystem;
+    //创建datanode管理器
     datanodeManager = new DatanodeManager(this, namesystem, conf);
+    //心跳管理器
     heartbeatManager = datanodeManager.getHeartbeatManager();
 
     startupDelayBlockDeletionInMs = conf.getLong(
@@ -449,7 +451,7 @@ public class BlockManager {
   }
 
   public void activate(Configuration conf) {
-	//启动了等待复制的线程
+	//启动了等待复制数据块的线程   pendingReplications = PendingReplicationBlocks
     pendingReplications.start();
     //TODO 启动了管理心跳的服务
     datanodeManager.activate(conf);
@@ -1307,8 +1309,7 @@ public class BlockManager {
     namesystem.writeLock();
     try {
       // Choose the blocks to be replicated
-      blocksToReplicate = neededReplications
-          .chooseUnderReplicatedBlocks(blocksToProcess);
+      blocksToReplicate = neededReplications.chooseUnderReplicatedBlocks(blocksToProcess);
     } finally {
       namesystem.writeUnlock();
     }
@@ -1319,7 +1320,13 @@ public class BlockManager {
    *
    * @param blocksToReplicate blocks to be replicated, for each priority
    * @return the number of blocks scheduled for replication
+   *
+   * 分三部分
+   * 1 选择源节点
+   * 2 选择目标节点
+   * 3 进行复制操作
    */
+
   @VisibleForTesting
   int computeReplicationWorkForBlocks(List<List<Block>> blocksToReplicate) {
     int requiredReplication, numEffectiveReplicas;
@@ -1337,23 +1344,23 @@ public class BlockManager {
         for (int priority = 0; priority < blocksToReplicate.size(); priority++) {
           for (Block block : blocksToReplicate.get(priority)) {
             // block should belong to a file
+            //通过blocksMap获得block 所属的INode对象
             bc = blocksMap.getBlockCollection(block);
             // abandoned block or block reopened for append
+            //如果文件正在构建当中，则不可以备份，从neededReplications删除
             if(bc == null || (bc.isUnderConstruction() && block.equals(bc.getLastBlock()))) {
               neededReplications.remove(block, priority); // remove from neededReplications
               neededReplications.decrementReplicationIndex(priority);
               continue;
             }
-
+            //数据块的副本系数
             requiredReplication = bc.getBlockReplication();
 
-            // get a source data-node
+            // 获取备份副本的源节点
             containingNodes = new ArrayList<DatanodeDescriptor>();
             List<DatanodeStorageInfo> liveReplicaNodes = new ArrayList<DatanodeStorageInfo>();
             NumberReplicas numReplicas = new NumberReplicas();
-            srcNode = chooseSourceDatanode(
-                block, containingNodes, liveReplicaNodes, numReplicas,
-                priority);
+            srcNode = chooseSourceDatanode(block, containingNodes, liveReplicaNodes, numReplicas, priority);
             if(srcNode == null) { // block can not be replicated from any node
               LOG.debug("Block " + block + " cannot be repl from any node");
               continue;
@@ -1363,10 +1370,9 @@ public class BlockManager {
             // not included in the numReplicas.liveReplicas() count
             assert liveReplicaNodes.size() >= numReplicas.liveReplicas();
 
-            // do not schedule more if enough replicas is already pending
-            numEffectiveReplicas = numReplicas.liveReplicas() +
-                                    pendingReplications.getNumReplicas(block);
-      
+            // 当前有效的副本数 = 已经备份的数 + 正在备份的副本
+            numEffectiveReplicas = numReplicas.liveReplicas() + pendingReplications.getNumReplicas(block);
+            // 如果副本数已经够了，则不用进行备份操作，从pendingReplications队列中删除
             if (numEffectiveReplicas >= requiredReplication) {
               if ( (pendingReplications.getNumReplicas(block) > 0) ||
                    (blockHasEnoughRacks(block)) ) {
@@ -1377,16 +1383,15 @@ public class BlockManager {
                 continue;
               }
             }
-
+            //如果副本数不足，则计算需要添加多少个副本
             if (numReplicas.liveReplicas() < requiredReplication) {
-              additionalReplRequired = requiredReplication
-                  - numEffectiveReplicas;
+              additionalReplRequired = requiredReplication - numEffectiveReplicas;
             } else {
               additionalReplRequired = 1; // Needed on a new rack
             }
+            //在工作队列中添加备份任务，任务会在下一次心跳时带到Datanode
             work.add(new ReplicationWork(block, bc, srcNode,
-                containingNodes, liveReplicaNodes, additionalReplRequired,
-                priority));
+                containingNodes, liveReplicaNodes, additionalReplRequired, priority));
           }
         }
       }
@@ -1394,10 +1399,13 @@ public class BlockManager {
       namesystem.writeUnlock();
     }
 
+    //选择目标节点
+
     final Set<Node> excludedNodes = new HashSet<Node>();
     for(ReplicationWork rw : work){
       // Exclude all of the containing nodes from being targets.
       // This list includes decommissioning or corrupt nodes.
+      // 排除数据块已有副本所在的datanodes
       excludedNodes.clear();
       for (DatanodeDescriptor dn : rw.containingNodes) {
         excludedNodes.add(dn);
@@ -1406,6 +1414,7 @@ public class BlockManager {
       // choose replication targets: NOT HOLDING THE GLOBAL LOCK
       // It is costly to extract the filename for which chooseTargets is called,
       // so for now we pass in the block collection itself.
+      // 选择目标节点
       rw.chooseTargets(blockplacement, storagePolicySuite, excludedNodes);
     }
 
@@ -1460,6 +1469,7 @@ public class BlockManager {
           }
 
           // Add block to the to be replicated list
+          //todo 将副本加入datanode的备份队列中，在下一次心跳时，发出备份指令
           rw.srcNode.addBlockToBeReplicated(block, targets);
           scheduledWork++;
           DatanodeStorageInfo.incrementBlocksScheduled(targets);
@@ -3617,10 +3627,13 @@ public class BlockManager {
         try {
           // Process replication work only when active NN is out of safe mode.
           if (namesystem.isPopulatingReplQueues()) {
+            //todo 触发数据块的复制和删除任务
             computeDatanodeWork();
+            //todo 将超时任务重新加回neededReplications
             processPendingReplications();
             rescanPostponedMisreplicatedBlocks();
           }
+          // 3s
           Thread.sleep(replicationRecheckInterval);
         } catch (Throwable t) {
           if (!namesystem.isRunning()) {
@@ -3660,11 +3673,13 @@ public class BlockManager {
     }
 
     final int numlive = heartbeatManager.getLiveDatanodeCount();
-    final int blocksToProcess = numlive
-        * this.blocksReplWorkMultiplier;
-    final int nodesToProcess = (int) Math.ceil(numlive
-        * this.blocksInvalidateWorkPct);
 
+    //todo 活的 datanode * 2
+    final int blocksToProcess = numlive * this.blocksReplWorkMultiplier;
+    //计算出进行删除操作的datanode数量
+    final int nodesToProcess = (int) Math.ceil(numlive * this.blocksInvalidateWorkPct);
+
+    //需要进行备份的副本
     int workFound = this.computeReplicationWork(blocksToProcess);
 
     // Update counters
@@ -3675,6 +3690,7 @@ public class BlockManager {
     } finally {
       namesystem.writeUnlock();
     }
+    //需要进行删除的副本
     workFound += this.computeInvalidateWork(nodesToProcess);
     return workFound;
   }

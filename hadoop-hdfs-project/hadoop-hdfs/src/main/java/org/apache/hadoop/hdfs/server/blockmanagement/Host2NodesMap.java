@@ -31,7 +31,9 @@ import org.apache.hadoop.hdfs.DFSUtil;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 class Host2NodesMap {
+  //hostname, ipAddr
   private HashMap<String, String> mapHost = new HashMap<String, String>();
+  //ipAddr DatanodeDescriptor[] 即一个节点 可能会启动多个datanode
   private final HashMap<String, DatanodeDescriptor[]> map = new HashMap<String, DatanodeDescriptor[]>();
   private final ReadWriteLock hostmapLock = new ReentrantReadWriteLock();
 
@@ -84,6 +86,7 @@ class Host2NodesMap {
         System.arraycopy(nodes, 0, newNodes, 0, nodes.length);
         newNodes[nodes.length] = node;
       }
+      // newNodes 是数组可能有多个
       map.put(ipAddr, newNodes);
       return true;
     } finally {

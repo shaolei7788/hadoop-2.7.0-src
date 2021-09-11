@@ -860,8 +860,7 @@ public class DataNode extends ReconfigurableBase
   
 
   private void initIpcServer(Configuration conf) throws IOException {
-    InetSocketAddress ipcAddr = NetUtils.createSocketAddr(
-        conf.getTrimmed(DFS_DATANODE_IPC_ADDRESS_KEY));
+    InetSocketAddress ipcAddr = NetUtils.createSocketAddr(conf.getTrimmed(DFS_DATANODE_IPC_ADDRESS_KEY));
     
     // Add all the RPC protocols that the Datanode implements    
     RPC.setProtocolEngine(conf, ClientDatanodeProtocolPB.class,
@@ -872,7 +871,7 @@ public class DataNode extends ReconfigurableBase
     BlockingService service = ClientDatanodeProtocolService
         .newReflectiveBlockingService(clientDatanodeProtocolXlator);
     
-    //这个代码就是用来创建一个RPC的服务端  jps
+    //这个代码就是用来创建一个RPC的服务端  jps  datanode跟datanode之间的通信
     ipcServer = new RPC.Builder(conf)
         .setProtocol(ClientDatanodeProtocolPB.class)
         .setInstance(service)
@@ -886,10 +885,8 @@ public class DataNode extends ReconfigurableBase
     InterDatanodeProtocolServerSideTranslatorPB interDatanodeProtocolXlator = 
         new InterDatanodeProtocolServerSideTranslatorPB(this);
     //datanode与datanode之间进行通信协议
-    service = InterDatanodeProtocolService
-        .newReflectiveBlockingService(interDatanodeProtocolXlator);
-    DFSUtil.addPBProtocol(conf, InterDatanodeProtocolPB.class, service,
-        ipcServer);
+    service = InterDatanodeProtocolService.newReflectiveBlockingService(interDatanodeProtocolXlator);
+    DFSUtil.addPBProtocol(conf, InterDatanodeProtocolPB.class, service, ipcServer);
      //另外还有一个协议
     TraceAdminProtocolServerSideTranslatorPB traceAdminXlator =
         new TraceAdminProtocolServerSideTranslatorPB(this);
@@ -1191,6 +1188,7 @@ public class DataNode extends ReconfigurableBase
     LOG.info("Starting DataNode with maxLockedMemory = " +
         dnConf.maxLockedMemory);
 
+    //
     storage = new DataStorage();
     
     // global DN settings
@@ -1223,9 +1221,7 @@ public class DataNode extends ReconfigurableBase
     //联邦一：hadoop1（Active） hadoop2(StandBy)(blockPool是同一个)
     //联邦二：hadoop3(Active)   hadoop4(StandBy)(blockPool是同一个)
     blockPoolManager = new BlockPoolManager(this);
-
-    //TODO 重要
-    //里面涉及到心跳内容
+    //TODO 非常重要 方法名没取好 没见名之意 里面涉及到心跳内容
     blockPoolManager.refreshNamenodes(conf);
 
     // Create the ReadaheadPool from the DataNode context so we can
@@ -2476,10 +2472,8 @@ public class DataNode extends ReconfigurableBase
     FsPermission permission = new FsPermission(
         conf.get(DFS_DATANODE_DATA_DIR_PERMISSION_KEY,
                  DFS_DATANODE_DATA_DIR_PERMISSION_DEFAULT));
-    DataNodeDiskChecker dataNodeDiskChecker =
-        new DataNodeDiskChecker(permission);
-    List<StorageLocation> locations =
-        checkStorageLocations(dataDirs, localFS, dataNodeDiskChecker);
+    DataNodeDiskChecker dataNodeDiskChecker = new DataNodeDiskChecker(permission);
+    List<StorageLocation> locations = checkStorageLocations(dataDirs, localFS, dataNodeDiskChecker);
     DefaultMetricsSystem.initialize("DataNode");
 
     assert locations.size() > 0 : "number of data directories should be > 0";
