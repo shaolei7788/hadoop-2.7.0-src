@@ -18,6 +18,7 @@ public class FileTest {
 		 *  Namenode namenode=new Namenode(conf)
 		 *  namenode.mkdirs(new Path("xx"))
 		 */
+
 		//完成写数据流程
 		/**
 		 *
