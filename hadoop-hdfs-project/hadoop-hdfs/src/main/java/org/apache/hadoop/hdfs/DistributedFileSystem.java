@@ -1060,6 +1060,7 @@ public class DistributedFileSystem extends FileSystem {
     return mkdirsInternal(f, permission, true);
   }
 
+
   private boolean mkdirsInternal(Path f, final FsPermission permission,
       final boolean createParent) throws IOException {
     statistics.incrementWriteOps(1);
