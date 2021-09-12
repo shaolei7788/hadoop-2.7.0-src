@@ -287,16 +287,19 @@ public class YARNRunner implements ClientProtocol {
 
     // Submit to ResourceManager
     try {
-      //todo
-      ApplicationId applicationId = resMgrDelegate.submitApplication(appContext);
+      ApplicationId applicationId =
+          resMgrDelegate.submitApplication(appContext);
 
-      //todo
-      ApplicationReport appMaster = resMgrDelegate.getApplicationReport(applicationId);
+      ApplicationReport appMaster = resMgrDelegate
+          .getApplicationReport(applicationId);
       String diagnostics =
-          (appMaster == null ? "application report is null" : appMaster.getDiagnostics());
-      if (appMaster == null || appMaster.getYarnApplicationState() == YarnApplicationState.FAILED
+          (appMaster == null ?
+              "application report is null" : appMaster.getDiagnostics());
+      if (appMaster == null
+          || appMaster.getYarnApplicationState() == YarnApplicationState.FAILED
           || appMaster.getYarnApplicationState() == YarnApplicationState.KILLED) {
-        throw new IOException("Failed to run job : " + diagnostics);
+        throw new IOException("Failed to run job : " +
+            diagnostics);
       }
       return clientCache.getClient(jobId).getJobStatus(jobId);
     } catch (YarnException e) {

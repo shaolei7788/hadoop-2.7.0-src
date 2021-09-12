@@ -1409,7 +1409,7 @@ public class MRAppMaster extends CompositeService {
           containerId.getApplicationAttemptId();
       long appSubmitTime = Long.parseLong(appSubmitTimeStr);
       
-      //todo
+      
       MRAppMaster appMaster =
           new MRAppMaster(applicationAttemptId, containerId, nodeHostString,
               Integer.parseInt(nodePortString),
@@ -1420,7 +1420,8 @@ public class MRAppMaster extends CompositeService {
       conf.addResource(new Path(MRJobConfig.JOB_CONF_FILE));
       
       MRWebAppUtil.initialize(conf);
-      String jobUserName = System.getenv(ApplicationConstants.Environment.USER.name());
+      String jobUserName = System
+          .getenv(ApplicationConstants.Environment.USER.name());
       conf.set(MRJobConfig.USER_NAME, jobUserName);
       initAndStartAppMaster(appMaster, conf, jobUserName);
     } catch (Throwable t) {
@@ -1492,7 +1493,6 @@ public class MRAppMaster extends CompositeService {
     appMasterUgi.doAs(new PrivilegedExceptionAction<Object>() {
       @Override
       public Object run() throws Exception {
-        //todo 初始化
         appMaster.init(conf);
         appMaster.start();
         if(appMaster.errorHappenedShutDown) {

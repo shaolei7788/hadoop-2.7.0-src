@@ -135,10 +135,10 @@ class JobSubmitter {
    * @throws InterruptedException
    * @throws IOException
    */
-  JobStatus submitJobInternal(Job job, Cluster cluster) throws ClassNotFoundException, InterruptedException, IOException {
+  JobStatus submitJobInternal(Job job, Cluster cluster) 
+  throws ClassNotFoundException, InterruptedException, IOException {
 
-    //validate the jobs output specs
-    //检查工作目录和输出目录
+    //validate the jobs output specs 
     checkSpecs(job);
 
     Configuration conf = job.getConfiguration();
@@ -153,8 +153,6 @@ class JobSubmitter {
       conf.set(MRJobConfig.JOB_SUBMITHOST,submitHostName);
       conf.set(MRJobConfig.JOB_SUBMITHOSTADDR,submitHostAddress);
     }
-    //todo submitClient 就是client和RM之间的通信协议
-    //submitClient = YARNRunner
     JobID jobId = submitClient.getNewJobID();
     job.setJobID(jobId);
     Path submitJobDir = new Path(jobStagingArea, jobId.toString());
@@ -177,7 +175,8 @@ class JobSubmitter {
       if (TokenCache.getShuffleSecretKey(job.getCredentials()) == null) {
         KeyGenerator keyGen;
         try {
-          int keyLen = CryptoUtils.isShuffleEncrypted(conf)
+         
+          int keyLen = CryptoUtils.isShuffleEncrypted(conf) 
               ? conf.getInt(MRJobConfig.MR_ENCRYPTED_INTERMEDIATE_DATA_KEY_SIZE_BITS, 
                   MRJobConfig.DEFAULT_MR_ENCRYPTED_INTERMEDIATE_DATA_KEY_SIZE_BITS)
               : SHUFFLE_KEY_LENGTH;
@@ -203,10 +202,11 @@ class JobSubmitter {
 
       // write "queue admins of the queue to which job is being submitted"
       // to job file.
-      //指定任务执行的队列
-      String queue = conf.get(MRJobConfig.QUEUE_NAME, JobConf.DEFAULT_QUEUE_NAME);
+      String queue = conf.get(MRJobConfig.QUEUE_NAME,
+          JobConf.DEFAULT_QUEUE_NAME);
       AccessControlList acl = submitClient.getQueueAdmins(queue);
-      conf.set(toFullPropertyName(queue,QueueACL.ADMINISTER_JOBS.getAclName()), acl.getAclString());
+      conf.set(toFullPropertyName(queue,
+          QueueACL.ADMINISTER_JOBS.getAclName()), acl.getAclString());
 
       // removing jobtoken referrals before copying the jobconf to HDFS
       // as the tasks don't need this setting, actually they may break
@@ -240,8 +240,8 @@ class JobSubmitter {
       // Now, actually submit the job (using the submit name)
       //
       printTokens(jobId, job.getCredentials());
-      //todo 提交任务 第二个参数是 临时目录
-      status = submitClient.submitJob(jobId, submitJobDir.toString(), job.getCredentials());
+      status = submitClient.submitJob(
+          jobId, submitJobDir.toString(), job.getCredentials());
       if (status != null) {
         return status;
       } else {
@@ -261,7 +261,8 @@ class JobSubmitter {
       InterruptedException, IOException {
     JobConf jConf = (JobConf)job.getConfiguration();
     // Check the output specification
-    if (jConf.getNumReduceTasks() == 0 ? jConf.getUseNewMapper() : jConf.getUseNewReducer()) {
+    if (jConf.getNumReduceTasks() == 0 ? 
+        jConf.getUseNewMapper() : jConf.getUseNewReducer()) {
       org.apache.hadoop.mapreduce.OutputFormat<?, ?> output =
         ReflectionUtils.newInstance(job.getOutputFormatClass(),
           job.getConfiguration());

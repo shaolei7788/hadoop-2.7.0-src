@@ -761,6 +761,7 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory, DataEncr
 
 	/** Get a lease and start automatic renewal */
 	private void beginFileLease(final long inodeId, final DFSOutputStream out) throws IOException {
+		// put
 		getLeaseRenewer().put(inodeId, out, this);
 	}
 
@@ -1409,6 +1410,7 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory, DataEncr
 			return new HdfsDataOutputStream(cryptoOut, statistics, startPos);
 		} else {
 			// No FileEncryptionInfo present so no encryption.
+			//todo
 			return new HdfsDataOutputStream(dfsos, statistics, startPos);
 		}
 	}
@@ -1598,7 +1600,7 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory, DataEncr
 				getFavoredNodesStr(favoredNodes));
 
 
-		//TODO 开启续约(契约)
+		//TODO 开启续约(契约)  里面开启了一个线程
 		beginFileLease(result.getFileId(), result);
 		return result;
 	}

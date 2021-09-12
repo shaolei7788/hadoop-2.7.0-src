@@ -152,9 +152,7 @@ class BlockPoolManager {
   void refreshNamenodes(Configuration conf)
       throws IOException {
     LOG.info("Refresh request received for nameservices: " + conf.get(DFSConfigKeys.DFS_NAMESERVICES));
-
     Map<String, Map<String, InetSocketAddress>> newAddressMap = DFSUtil.getNNServiceRpcAddressesForCluster(conf);
-
     synchronized (refreshNamenodesLock) {
     	//TODO 重要代码
       doRefreshNamenodes(newAddressMap);
@@ -169,8 +167,6 @@ class BlockPoolManager {
    * @throws IOException
    */
   private void doRefreshNamenodes(Map<String, Map<String, InetSocketAddress>> addrMap) throws IOException {
-
-
     assert Thread.holdsLock(refreshNamenodesLock);
 
     Set<String> toRefresh = Sets.newLinkedHashSet();
@@ -204,8 +200,7 @@ class BlockPoolManager {
       
       // Step 2. Any nameservices we currently have but are no longer present
       // need to be removed.
-      toRemove = Sets.newHashSet(Sets.difference(
-          bpByNameserviceId.keySet(), addrMap.keySet()));
+      toRemove = Sets.newHashSet(Sets.difference(bpByNameserviceId.keySet(), addrMap.keySet()));
       
       assert toRefresh.size() + toAdd.size() ==
         addrMap.size() :
@@ -216,8 +211,7 @@ class BlockPoolManager {
       
       // Step 3. Start new nameservices
       if (!toAdd.isEmpty()) {
-        LOG.info("Starting BPOfferServices for nameservices: " +
-            Joiner.on(",").useForNull("<default>").join(toAdd));
+        LOG.info("Starting BPOfferServices for nameservices: " + Joiner.on(",").useForNull("<default>").join(toAdd));
 
         //TODO 遍历所有的联邦，一个联邦里面会有两个NameNode(HA)
 

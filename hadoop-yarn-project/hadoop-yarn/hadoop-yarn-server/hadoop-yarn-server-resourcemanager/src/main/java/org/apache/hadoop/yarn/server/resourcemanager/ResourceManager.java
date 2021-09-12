@@ -112,27 +112,6 @@ import java.util.concurrent.LinkedBlockingQueue;
  * "I am the ResourceManager. All your resources belong to us..."
  *
  */
-
-/**
- * ResourceManager共维护了四类状态机，分别是RMApp、RMAppAttempt、RMContainer和RMNode
- *
- * RMApp: RMApp维护了一个应用程序的整个运行周期，包括从启动到运行结束整个过程。
- * 由于一个Application的生命周期可能会启动多个Application运行实例，因此可认为，
- * RMApp维护的是同一个Application启动的所有运行实例的生命周期
- *
- * RMAppAttempt。一个应用程序可能启动多个实例，即一个实例运行失败后，可能再次启动一个重新运行，
- *  而每次启动称为一个运行尝试，用“RMAppAttempt”描述，
- *  RMAppAttempt维护了一次运行尝试的整个生命周期
- *
- * RMContainer。RMContainer维护了一个Container的运行周期，包括从创建到运行结束整个过程。
- * RM将资源封装成Container发送给应用程序的ApplicationMaster，
- * 而ApplicationMaster则会在Container描述的运行环境中启动任务，因此，从这个层面上讲，
- * Container和任务的生命周期是一致的
- *
- * RMNode。RMNode维护了一个NodeManager的生命周期，包括启动到运行结束整个过程
- *
- */
-
 @SuppressWarnings("unchecked")
 public class ResourceManager extends CompositeService implements Recoverable {
 
@@ -148,15 +127,9 @@ public class ResourceManager extends CompositeService implements Recoverable {
    * "Always On" services. Services that need to run always irrespective of
    * the HA state of the RM.
    */
-  //上下文对象
   @VisibleForTesting
   protected RMContextImpl rmContext;
-
-
   private Dispatcher rmDispatcher;
-  // ResourceManager为管理员提供了一套独立的服务接口，
-  // 以防止大量的普通用户请求使管理员发送的管理命令饿死，
-  // 管理员可通过这些接口管理集群，比如动态更新节点列表、更新ACL列表、更新队列信息等
   @VisibleForTesting
   protected AdminService adminService;
 
@@ -171,51 +144,17 @@ public class ResourceManager extends CompositeService implements Recoverable {
   protected RMActiveServices activeServices;
   protected RMSecretManagerService rmSecretManagerService;
 
-
-  //todo 资源调度器 它按照一定的约束条件将集群中的资源分配给各个应用程序，
-  // 当前主要考虑内存和CPU资源。ResourceScheduler是一个插拔式模块，
-  // YARN自带了一个批处理资源调度器
-  // -- FIFO和 两个多用户调度器
-  // -- Fair Scheduler
-  // -- Capacity Scheduler
   protected ResourceScheduler scheduler;
-
   protected ReservationSystem reservationSystem;
-
-  //ClientRMService是为普通用户提供的服务，
-  // 它处理来自客户端各种RPC请求，比如提交应用程序、终止应用程序、获取应用程序运行状态等
   private ClientRMService clientRM;
-
-  //todo 处理来自ApplicationMaster的请求，主要包括注册和心跳两种请求，其中，
-  // 注册是ApplicationMaster启动时发生的行为，注册请求包中包含ApplicationMaster启动节点；
-  // 对外RPC端口号和trackingURL等信息；而心跳而是周期性行为，汇报信息包含所需资源描述、待释放的Container列表、黑名单列表等，
-  // 而AMS则为之返回新分配的Container、失败的Container、待抢占的Container列表等信息
   protected ApplicationMasterService masterService;
-
-  //监控NM是否活着，如果一个NodeManager在一定时间内未汇报心跳信息，则认为它死掉了，需将其从集群中移除
   protected NMLivelinessMonitor nmLivelinessMonitor;
-
-  //维护正常节点和异常节点列表，管理exclude(类似于黑名单)和include(类似于白名单)节点列表，
-  // 这两个列表均是在配置文件中设置的，可以动态加载
   protected NodesListManager nodesListManager;
-
-  //管理应用程序的启动和关闭
   protected RMAppManager rmAppManager;
-
-  //管理应用程序访问权限，包含两部分权限 ：查看权限和修改权限。
-  // 查看权限主要用于查看应用程序基本信息，而修改权限则主要用于修改应用程序优先级、杀死应用程序等
   protected ApplicationACLsManager applicationACLsManager;
-
   protected QueueACLsManager queueACLsManager;
-
-  //为了更AMLivelinessMonitor加友好地展示集群资源使用情况和应用程序运行状态等信息，YARN对外提供了一个WEB界面
   private WebApp webApp;
   private AppReportFetcher fetcher = null;
-
-  //todo 处理来自NodeManager的请求，主要包括注册和心跳两种请求，其中，
-  // 注册时NodeManager启动时发生的行为，请求包中包含节点ID、可用的资源上限等信息；
-  // 而心跳时周期性行为，包含各个Container运行状态，运行的Application列表、节点资源状况等信息，
-  // 作为请求的应答，ResourceTrackerService可为NodeManager返回待释放的Container列表、Application列表等信息
   protected ResourceTrackerService resourceTracker;
 
   @VisibleForTesting
@@ -299,8 +238,6 @@ public class ResourceManager extends CompositeService implements Recoverable {
     }
 
     // register the handlers for all AlwaysOn services using setupDispatcher().
-
-    //todo 创建dispatcher  rmDispatcher = AsyncDispatcher
     rmDispatcher = setupDispatcher();
     addIfService(rmDispatcher);
     rmContext.setDispatcher(rmDispatcher);
@@ -310,11 +247,9 @@ public class ResourceManager extends CompositeService implements Recoverable {
     rmContext.setRMAdminService(adminService);
     
     rmContext.setYarnConfiguration(conf);
-
-    //todo
+    
     createAndInitActiveServices();
 
-    //todo http://localhost:8088端口的访问
     webAppAddress = WebAppUtils.getWebAppBindURL(this.conf,
                       YarnConfiguration.RM_BIND_HOST,
                       WebAppUtils.getRMWebAppURLWithoutScheme(this.conf));
@@ -393,8 +328,6 @@ public class ResourceManager extends CompositeService implements Recoverable {
         .getDispatcher());
   }
 
-  //监控AM是否活着，如果一个ApplicationMaster在一定时间内未汇报心跳信息，则认为它死掉了，
-  // 它上面所有正在运行的Container将被置为失败状态，而AM本身会被重新分配到另外一个节点上执行
   protected AMLivelinessMonitor createAMLivelinessMonitor() {
     return new AMLivelinessMonitor(this.rmDispatcher);
   }
@@ -456,14 +389,8 @@ public class ResourceManager extends CompositeService implements Recoverable {
 
     private DelegationTokenRenewer delegationTokenRenewer;
     private EventHandler<SchedulerEvent> schedulerDispatcher;
-    //todo 与某个NodeManager通信，要求它为某个应用程序启动ApplicationMaster
     private ApplicationMasterLauncher applicationMasterLauncher;
-
-    //todo 当AM收到RM新分配的一个Container后，必须在一定的时间内在对应的NM上启动该Container，
-    // 否则RM将强制回收该Container，
-    // 而一个已经分配的Container是否该被回收则是由ContainerAllocationExpirer决定和执行的
     private ContainerAllocationExpirer containerAllocationExpirer;
-
     private ResourceManager rm;
     private boolean recoveryEnabled;
     private RMActiveServiceContext activeServiceContext;
@@ -562,13 +489,16 @@ public class ResourceManager extends CompositeService implements Recoverable {
       rmDispatcher.register(SchedulerEventType.class, schedulerDispatcher);
 
       // Register event handler for RmAppEvents
-      rmDispatcher.register(RMAppEventType.class, new ApplicationEventDispatcher(rmContext));
+      rmDispatcher.register(RMAppEventType.class,
+          new ApplicationEventDispatcher(rmContext));
 
       // Register event handler for RmAppAttemptEvents
-      rmDispatcher.register(RMAppAttemptEventType.class, new ApplicationAttemptEventDispatcher(rmContext));
+      rmDispatcher.register(RMAppAttemptEventType.class,
+          new ApplicationAttemptEventDispatcher(rmContext));
 
       // Register event handler for RmNodes
-      rmDispatcher.register(RMNodeEventType.class, new NodeEventDispatcher(rmContext));
+      rmDispatcher.register(
+          RMNodeEventType.class, new NodeEventDispatcher(rmContext));
 
       nmLivelinessMonitor = createNMLivelinessMonitor();
       addService(nmLivelinessMonitor);
@@ -1274,9 +1204,7 @@ public class ResourceManager extends CompositeService implements Recoverable {
         ShutdownHookManager.get().addShutdownHook(
           new CompositeServiceShutdownHook(resourceManager),
           SHUTDOWN_HOOK_PRIORITY);
-        //初始化各种服务
         resourceManager.init(conf);
-        //启动各种服务
         resourceManager.start();
       }
     } catch (Throwable t) {
@@ -1289,9 +1217,9 @@ public class ResourceManager extends CompositeService implements Recoverable {
    * Register the handlers for alwaysOn services
    */
   private Dispatcher setupDispatcher() {
-    //todo
     Dispatcher dispatcher = createDispatcher();
-    dispatcher.register(RMFatalEventType.class, new ResourceManager.RMFatalEventDispatcher());
+    dispatcher.register(RMFatalEventType.class,
+        new ResourceManager.RMFatalEventDispatcher());
     return dispatcher;
   }
 

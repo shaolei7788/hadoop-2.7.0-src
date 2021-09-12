@@ -1668,6 +1668,7 @@ public class NameNode implements NameNodeStatusMXBean {
 
   //基于 QJM 的共享存储系统主要用于保存 EditLog，并不保存 FSImage 文件。
   // FSImage 文件还是在 NameNode 的本地磁盘上
+  //todo 源码下载地址 https://archive.apache.org/dist/hadoop/common/hadoop-2.7.0/
   public static void main(String argv[]) throws Exception {
 	 //解析参数
     if (DFSUtil.parseHelpArgument(argv, NameNode.USAGE, System.out, true)) {

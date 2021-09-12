@@ -217,12 +217,12 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 	// it. When all the packets for a block are sent out and acks for each
 	// if them are received, the DataStreamer closes the current block.
    //TODO 类注释
-   //DataStreamer的服务主要是用来处理接收数据管道里面的数据.
-   //他会向NameNode申请新的block，namenode返回来的时候，会返回来关于block的blockid和
-   //block对应的DataNode的信息
+   // DataStreamer的服务主要是用来处理接收数据管道里面的数据.
+   // 他会向NameNode申请新的block，namenode返回来的时候，会返回来关于block的blockid和
+   // block对应的DataNode的信息
    // 启动了这个服务器以后，它会接收packet流的。
    // 每个packet 都是有序列号的，当这个服务器接收到一个完整的block（packet）时候，就会返回响应
-   //并且关闭当前的DataStreamer
+   // 并且关闭当前的DataStreamer
 	class DataStreamer extends Daemon {
 		private volatile boolean streamerClosed = false;
 		private ExtendedBlock block; // its length is number of bytes acked
@@ -460,7 +460,8 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 						 * 1） 向Namenode申请block
 						 * 2) 建立数据管道
 						 */
-						setPipeline(nextBlockOutputStream());
+						LocatedBlock locatedBlock = nextBlockOutputStream();
+						setPipeline(locatedBlock);
 						//重要
 						//TODO 步骤二：启动了ResponseProcessor 用来监听我们一个packet发送是否成功
 						//TODO 往下还有步骤三，步骤四
@@ -821,7 +822,7 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 							scope = Trace.continueSpan(one.getTraceSpan());
 							one.setTraceSpan(null);
 							lastAckedSeqno = seqno;
-							//TODO 如果发送成功那么就会把ackQueue里面packet移除来
+							//TODO 如果发送成功那么就会把 ackQueue里面packet移除来
 							ackQueue.removeFirst();
 							dataQueue.notifyAll();
 							one.releaseBuffer(byteArrayManager);
@@ -832,15 +833,14 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 								setLastException((IOException) e);
 							}
 							hasError = true;
-							// If no explicit error report was received, mark the primary
+							// If no explicit error report was received, mark the primary  explicit 明确的意思
 							// node as failed.
 							tryMarkPrimaryDatanodeFailed();
 							synchronized (dataQueue) {
 								dataQueue.notifyAll();
 							}
 							if (restartingNodeIndex.get() == -1) {
-								DFSClient.LOG.warn(
-										"DFSOutputStream ResponseProcessor exception " + " for block " + block, e);
+								DFSClient.LOG.warn("DFSOutputStream ResponseProcessor exception " + " for block " + block, e);
 							}
 							responderClosed = true;
 						}
@@ -1160,12 +1160,14 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 				}
 
 				// get a new generation stamp and an access token
-				//TODO 大数据情况是这种
+				//TODO 大多数情况是这种
 				//跟namenode进行通信，更新申请的block的信息
 				//block -> hadoop1 hadoop2 hdaoop3
 				//更新为  -> hadoop2,hadoop3
 				//Hadoop2 hadoop3指令 -> block1  -> hadoop5
 				//hadoop2 hadoop3  不满足 3 个副本  Hadoop6
+				//todo 该方法向namenode申请为这个数据块分配新的时间戳，这样故障节点上没能写完整的数据块的时间戳就会过期，
+				// 在后续块汇报操作中会被删除
 				LocatedBlock lb = dfsClient.namenode.updateBlockForPipeline(block, dfsClient.clientName);
 				newGS = lb.getBlock().getGenerationStamp();
 				accessToken = lb.getBlockToken();
@@ -1239,21 +1241,19 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 			StorageType[] storageTypes = null;
 			int count = dfsClient.getConf().nBlockWriteRetry;
 			boolean success = false;
+			//todo 在刚创建DataStreamer时 block为null
 			ExtendedBlock oldBlock = block;
 			/**
-			 *
 			 * 因为申请block或者 建立数据管道，这些都是重要的操作
 			 * 务必要执行成功，但是这些操作都涉及到网络的请求。网络的事说不准。
 			 * 我们的代码里面不能说一次失败了就失败了，我们要进行多次尝试。
 			 * 所以大家经常看到HDFS里面的很多地方的代码都是用的循环
-			 *
 			 */
 			do {
 				hasError = false;
 				lastException.set(null);
 				errorIndex = -1;
 				success = false;
-
 				DatanodeInfo[] excluded = excludedNodes.getAllPresent(excludedNodes.asMap().keySet()).keySet().toArray(new DatanodeInfo[0]);
 				block = oldBlock;
 				// TODO 向NameNode申请block
@@ -1263,6 +1263,7 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 			     * 2）在磁盘上面记录了元数据信息
 			     * 3）在BlockMananger里面记录了block的元数据信息
 			     */
+			    // lb = LocatedBlock 包含上一个数据块的地址
 				lb = locateFollowingBlock(excluded.length > 0 ? excluded : null);
 				block = lb.getBlock();
 				block.setNumBytes(0);
@@ -1273,8 +1274,8 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 				//
 				// Connect to first DataNode in the list.
 				// TODO 其实HDFS管道的建立就是靠的这段代码完成的。
-				//hadoop1 hadoop2  【hadoop3】
-				//block 不要让我把副本再往hadoop3
+				// hadoop1 hadoop2  【hadoop3】
+				// block 不要让我把副本再往hadoop3
 				success = createBlockOutputStream(nodes, storageTypes, 0L, false);
 
 				if (!success) {
@@ -1339,11 +1340,9 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 					out = new DataOutputStream(new BufferedOutputStream(unbufOut, HdfsConstants.SMALL_BUFFER_SIZE));
 					//TODO 客户端通过这个输入流来读DataNode返回来的信息
 					blockReplyStream = new DataInputStream(unbufIn);
-
 					//
 					// Xmit header info to datanode
 					//
-
 					BlockConstructionStage bcs = recoveryFlag ? stage.getRecoveryStage() : stage;
 
 					// We cannot change the block length in 'block' as it counts the number
@@ -1354,8 +1353,8 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 					boolean[] targetPinnings = getPinnings(nodes, true);
 					// send the request
 					//TODO 发送写数据的请求
-					//这儿其实发送的是socket请求
-					//datanode那儿会启动一个DataXceiver服务接受socket请求
+					// 这儿其实发送的是socket请求
+					// datanode那儿会启动一个DataXceiver服务接受socket请求
 					new Sender(out).writeBlock(blockCopy, nodeStorageTypes[0], accessToken, dfsClient.clientName, nodes,
 							nodeStorageTypes, null, bcs, nodes.length, block.getNumBytes(), bytesSent, newGS,
 							checksum4WriteBlock, cachingStrategy.get(), isLazyPersistFile,
@@ -1488,8 +1487,7 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 									DFSClient.LOG.info("Waiting for replication for " + (elapsed / 1000) + " seconds");
 								}
 								try {
-									DFSClient.LOG.warn(
-											"NotReplicatedYetException sleeping " + src + " retries left " + retries);
+									DFSClient.LOG.warn("NotReplicatedYetException sleeping " + src + " retries left " + retries);
 									Thread.sleep(sleeptime);
 									sleeptime *= 2;
 								} catch (InterruptedException ie) {
@@ -1650,7 +1648,6 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 		TraceScope scope = dfsClient.getPathTraceScope("newStreamForCreate", src);
 		try {
 			HdfsFileStatus stat = null;
-
 			// Retry the create if we get a RetryStartFileException up to a maximum
 			// number of times
 			boolean shouldRetry = true;
@@ -1665,7 +1662,7 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 					 * 创建目录：就是在 目录树(元数据)上面添加一个子Node (INodeDirectory)
 					 *
 					 * 上传文件：
-					 *     1）在目录树里面添加一个字Node(InodeFile)
+					 *     1）在目录树里面添加一个子Node(InodeFile)
 					 *     2）再往文件里面写数据
 					 *     更新了元数据
 					 *     添加了契约
@@ -1797,6 +1794,7 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 				// If queue is full, then wait till we have enough space
 				boolean firstWait = true;
 				try {
+					// writeMaxPackets 80
 					while (!isClosed() && dataQueue.size() + ackQueue.size() > dfsClient.getConf().writeMaxPackets) {
 						if (firstWait) {
 							Span span = Trace.currentSpan();
@@ -1836,8 +1834,7 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 
 	// @see FSOutputSummer#writeChunk()
 	@Override
-	protected synchronized void writeChunk(byte[] b, int offset, int len, byte[] checksum, int ckoff, int cklen)
-			throws IOException {
+	protected synchronized void writeChunk(byte[] b, int offset, int len, byte[] checksum, int ckoff, int cklen) throws IOException {
 		TraceScope scope = dfsClient.getPathTraceScope("DFSOutputStream#writeChunk", src);
 		try {
 			//TODO 写chunk
@@ -1860,7 +1857,7 @@ public class DFSOutputStream extends FSOutputSummer implements Syncable, CanSetD
 			throw new IOException(
 					"writeChunk() checksum size is supposed to be " + getChecksumSize() + " but found to be " + cklen);
 		}
-
+        // currentPacket = DFSPacket
 		if (currentPacket == null) {
 			//TODO 创建packet
 			currentPacket = createPacket(packetSize, chunksPerPacket, bytesCurBlock, currentSeqno++, false);

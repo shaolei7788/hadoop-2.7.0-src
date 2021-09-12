@@ -250,8 +250,6 @@ public class YarnClientImpl extends YarnClient {
     }
 
     //TODO: YARN-1763:Handle RM failovers during the submitApplication call.
-    //ClientRMService 这个组件 存在于RM内部,专门用来给JobClient提供RPC服务的
-    //ClientRMService#submitApplication
     rmClient.submitApplication(request);
 
     int pollCount = 0;
@@ -426,9 +424,9 @@ public class YarnClientImpl extends YarnClient {
       throws YarnException, IOException {
     GetApplicationReportResponse response = null;
     try {
-      GetApplicationReportRequest request = Records.newRecord(GetApplicationReportRequest.class);
+      GetApplicationReportRequest request = Records
+          .newRecord(GetApplicationReportRequest.class);
       request.setApplicationId(appId);
-      //rmClient ApplicationClientProtocolPBClientImpl
       response = rmClient.getApplicationReport(request);
     } catch (YarnException e) {
       if (!historyServiceEnabled) {

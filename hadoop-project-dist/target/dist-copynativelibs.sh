@@ -1,4 +1,4 @@
-BUILD_DIR="D:\workspace\hadoop-2.7.0-src\hadoop-project-dist\target"
+BUILD_DIR="H:\Workspaces\hadoop-2.7.0-src\hadoop-project-dist\target"
                       TAR='tar cf -'
                       UNTAR='tar xfBp -'
                       LIB_DIR="${BUILD_DIR}/native/target/usr/local/lib"

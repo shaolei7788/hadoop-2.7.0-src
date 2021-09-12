@@ -921,7 +921,7 @@ class BPServiceActor implements Runnable {
         }
       }
       //TODO 注册结束了
-      // 进入另一个while循环，不停的调用offerService()方法，
+      // 进入另一个while循环，不停的调用 offerService()方法，
       // 发送心跳给NameNode并接收来自NameNode，然后根据命令交给不同的组件去处理
       // 循环的条件就是该线程的标志位shouldServiceRun为true，且dataNode的shouldRun()返回true
       runningState = RunningState.RUNNING;

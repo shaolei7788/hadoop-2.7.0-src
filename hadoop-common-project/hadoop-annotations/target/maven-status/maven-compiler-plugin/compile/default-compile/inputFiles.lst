@@ -1,8 +1,8 @@
-D:\workspace\hadoop-2.7.0-src\hadoop-common-project\hadoop-annotations\src\main\java\org\apache\hadoop\classification\InterfaceAudience.java
-D:\workspace\hadoop-2.7.0-src\hadoop-common-project\hadoop-annotations\src\main\java\org\apache\hadoop\classification\tools\ExcludePrivateAnnotationsStandardDoclet.java
-D:\workspace\hadoop-2.7.0-src\hadoop-common-project\hadoop-annotations\src\main\java\org\apache\hadoop\classification\tools\IncludePublicAnnotationsStandardDoclet.java
-D:\workspace\hadoop-2.7.0-src\hadoop-common-project\hadoop-annotations\src\main\java\org\apache\hadoop\classification\tools\RootDocProcessor.java
-D:\workspace\hadoop-2.7.0-src\hadoop-common-project\hadoop-annotations\src\main\java\org\apache\hadoop\classification\InterfaceStability.java
-D:\workspace\hadoop-2.7.0-src\hadoop-common-project\hadoop-annotations\src\main\java\org\apache\hadoop\classification\tools\ExcludePrivateAnnotationsJDiffDoclet.java
-D:\workspace\hadoop-2.7.0-src\hadoop-common-project\hadoop-annotations\src\main\java\org\apache\hadoop\classification\tools\StabilityOptions.java
-D:\workspace\hadoop-2.7.0-src\hadoop-common-project\hadoop-annotations\src\main\java\org\apache\hadoop\classification\tools\package-info.java
+H:\Workspaces\hadoop-2.7.0-src\hadoop-common-project\hadoop-annotations\src\main\java\org\apache\hadoop\classification\tools\ExcludePrivateAnnotationsStandardDoclet.java
+H:\Workspaces\hadoop-2.7.0-src\hadoop-common-project\hadoop-annotations\src\main\java\org\apache\hadoop\classification\tools\StabilityOptions.java
+H:\Workspaces\hadoop-2.7.0-src\hadoop-common-project\hadoop-annotations\src\main\java\org\apache\hadoop\classification\tools\package-info.java
+H:\Workspaces\hadoop-2.7.0-src\hadoop-common-project\hadoop-annotations\src\main\java\org\apache\hadoop\classification\tools\ExcludePrivateAnnotationsJDiffDoclet.java
+H:\Workspaces\hadoop-2.7.0-src\hadoop-common-project\hadoop-annotations\src\main\java\org\apache\hadoop\classification\InterfaceAudience.java
+H:\Workspaces\hadoop-2.7.0-src\hadoop-common-project\hadoop-annotations\src\main\java\org\apache\hadoop\classification\tools\IncludePublicAnnotationsStandardDoclet.java
+H:\Workspaces\hadoop-2.7.0-src\hadoop-common-project\hadoop-annotations\src\main\java\org\apache\hadoop\classification\InterfaceStability.java
+H:\Workspaces\hadoop-2.7.0-src\hadoop-common-project\hadoop-annotations\src\main\java\org\apache\hadoop\classification\tools\RootDocProcessor.java

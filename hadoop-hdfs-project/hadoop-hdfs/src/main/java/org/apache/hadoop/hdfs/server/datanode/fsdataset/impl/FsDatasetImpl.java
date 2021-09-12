@@ -1261,7 +1261,8 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
           ref = volumes.getNextTransientVolume(b.getNumBytes());
           datanode.getMetrics().incrRamDiskBlocksWrite();
         } else {
-           //datanode  -> 配置多块磁盘
+           //todo datanode  -> 配置多块磁盘
+           // volumes = FsVolumeList
           ref = volumes.getNextVolume(storageType, b.getNumBytes());
         }
       } catch (DiskOutOfSpaceException de) {

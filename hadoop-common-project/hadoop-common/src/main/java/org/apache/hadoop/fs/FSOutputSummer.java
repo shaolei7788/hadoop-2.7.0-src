@@ -156,8 +156,7 @@ abstract public class FSOutputSummer extends OutputStream {
    * Returns the number of bytes that were flushed but are still left in the
    * buffer (can only be non-zero if keep is true).
    */
-  protected synchronized int flushBuffer(boolean keep,
-      boolean flushPartial) throws IOException {
+  protected synchronized int flushBuffer(boolean keep, boolean flushPartial) throws IOException {
     int bufLen = count;
     int partialLen = bufLen % sum.getBytesPerChecksum();
     int lenToFlush = flushPartial ? bufLen : bufLen - partialLen;
@@ -209,7 +208,7 @@ abstract public class FSOutputSummer extends OutputStream {
     for (int i = 0; i < len; i += sum.getBytesPerChecksum()) {//跨度chunk
       int chunkLen = Math.min(sum.getBytesPerChecksum(), len - i);
       int ckOffset = i / sum.getBytesPerChecksum() * getChecksumSize();
-      //TODO 一个一个chunk一chunk的写数据
+      //TODO 一个一个chunk一chunk的写数据  DFSOutputStream#writeChunk
       writeChunk(b, off + i, chunkLen, checksum, ckOffset, getChecksumSize());
     }
   }

@@ -277,8 +277,9 @@ public class RMAppManager implements EventHandler<RMAppManagerEvent>,
       ApplicationSubmissionContext submissionContext, long submitTime,
       String user) throws YarnException {
     ApplicationId applicationId = submissionContext.getApplicationId();
-    //todo 创建一个状态机
-    RMAppImpl application = createAndPopulateNewRMApp(submissionContext, submitTime, user);
+
+    RMAppImpl application =
+        createAndPopulateNewRMApp(submissionContext, submitTime, user);
     ApplicationId appId = submissionContext.getApplicationId();
 
     if (UserGroupInformation.isSecurityEnabled()) {
@@ -301,10 +302,8 @@ public class RMAppManager implements EventHandler<RMAppManagerEvent>,
       // Dispatcher is not yet started at this time, so these START events
       // enqueued should be guaranteed to be first processed when dispatcher
       // gets started.
-      //todo getEventHandler =  GenericEventHandler
-      //
       this.rmContext.getDispatcher().getEventHandler()
-              .handle(new RMAppEvent(applicationId, RMAppEventType.START));
+        .handle(new RMAppEvent(applicationId, RMAppEventType.START));
     }
   }
 

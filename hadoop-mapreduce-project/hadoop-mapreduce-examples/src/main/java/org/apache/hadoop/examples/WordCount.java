@@ -33,12 +33,14 @@ import org.apache.hadoop.util.GenericOptionsParser;
 
 public class WordCount {
 
-  public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritable>{
+  public static class TokenizerMapper 
+       extends Mapper<Object, Text, Text, IntWritable>{
     
     private final static IntWritable one = new IntWritable(1);
     private Text word = new Text();
       
-    public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+    public void map(Object key, Text value, Context context
+                    ) throws IOException, InterruptedException {
       StringTokenizer itr = new StringTokenizer(value.toString());
       while (itr.hasMoreTokens()) {
         word.set(itr.nextToken());
@@ -51,7 +53,9 @@ public class WordCount {
        extends Reducer<Text,IntWritable,Text,IntWritable> {
     private IntWritable result = new IntWritable();
 
-    public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+    public void reduce(Text key, Iterable<IntWritable> values, 
+                       Context context
+                       ) throws IOException, InterruptedException {
       int sum = 0;
       for (IntWritable val : values) {
         sum += val.get();
@@ -78,7 +82,8 @@ public class WordCount {
     for (int i = 0; i < otherArgs.length - 1; ++i) {
       FileInputFormat.addInputPath(job, new Path(otherArgs[i]));
     }
-    FileOutputFormat.setOutputPath(job, new Path(otherArgs[otherArgs.length - 1]));
+    FileOutputFormat.setOutputPath(job,
+      new Path(otherArgs[otherArgs.length - 1]));
     System.exit(job.waitForCompletion(true) ? 0 : 1);
   }
 }

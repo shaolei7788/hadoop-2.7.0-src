@@ -179,7 +179,13 @@ class BlockReceiver implements Closeable {
 				replicaHandler = datanode.data.createTemporary(storageType, block);
 			} else {
 				switch (stage) {
-				// TODO 调用这儿的代码, 管道建立之前的初始化的操作  rbw
+				    // TODO 调用这儿的代码, 管道建立之前的初始化的操作  rbw
+					// 副本的5种状态
+					// FINALIZED datanode上的副本已经完成写操作
+					// Rbw 刚刚被创建或者追加写的副本
+					// RUR 租约过期之后发生租约恢复和数据块恢复
+					// RWR 等待被恢复
+					// TEMPORARY datanode之间传输副本，正在传输的副本就是TEMPORARY状态
 					//finalized/rbw
 				case PIPELINE_SETUP_CREATE:
 					//TODO

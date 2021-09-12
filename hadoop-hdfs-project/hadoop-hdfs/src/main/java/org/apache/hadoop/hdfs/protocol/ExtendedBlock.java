@@ -26,7 +26,9 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 public class ExtendedBlock {
+
   private String poolId;
+
   private Block block;
 
   public ExtendedBlock() {

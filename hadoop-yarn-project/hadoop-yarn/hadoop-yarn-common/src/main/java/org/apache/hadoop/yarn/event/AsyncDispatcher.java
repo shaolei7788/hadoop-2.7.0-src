@@ -48,7 +48,6 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
 
   private static final Log LOG = LogFactory.getLog(AsyncDispatcher.class);
 
-  //event队列
   private final BlockingQueue<Event> eventQueue;
   private volatile boolean stopped = false;
 
@@ -64,12 +63,9 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
   // For drainEventsOnStop enabled only, block newly coming events into the
   // queue while stopping.
   private volatile boolean blockNewEvents = false;
-  //通用事件处理器 队列的生产者
   private EventHandler handlerInstance = null;
 
-  //处理线程 队列的消费者
   private Thread eventHandlingThread;
-  //Event 和 Handler的映射关系
   protected final Map<Class<? extends Enum>, EventHandler> eventDispatchers;
   private boolean exitOnDispatchException;
 
@@ -101,7 +97,6 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
           }
           Event event;
           try {
-            //todo
             event = eventQueue.take();
           } catch(InterruptedException ie) {
             if (!stopped) {
@@ -110,7 +105,6 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
             return;
           }
           if (event != null) {
-            //todo 根据Event 找到对应的 EventHandler
             dispatch(event);
           }
         }
@@ -130,7 +124,6 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
   protected void serviceStart() throws Exception {
     //start all the components
     super.serviceStart();
-    //todo createThread 消费eventQueue 队列中的事件
     eventHandlingThread = new Thread(createThread());
     eventHandlingThread.setName("AsyncDispatcher event handler");
     eventHandlingThread.start();
@@ -179,7 +172,6 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
     try{
       EventHandler handler = eventDispatchers.get(type);
       if(handler != null) {
-        //todo
         handler.handle(event);
       } else {
         throw new Exception("No handler for registered for " + type);
@@ -207,7 +199,6 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
     eventDispatchers.get(eventType);
     LOG.info("Registering " + eventType + " for " + handler.getClass());
     if (registeredHandler == null) {
-      //事件与事件处理器的注册
       eventDispatchers.put(eventType, handler);
     } else if (!(registeredHandler instanceof MultiListenerHandler)){
       /* for multiple listeners of an event add the multiple listener handler */
@@ -231,7 +222,6 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
     return handlerInstance;
   }
 
-  //
   class GenericEventHandler implements EventHandler<Event> {
     public void handle(Event event) {
       if (blockNewEvents) {
@@ -250,7 +240,6 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
             + remCapacity);
       }
       try {
-        //todo 事件处理方法 就是加入队列中
         eventQueue.put(event);
       } catch (InterruptedException e) {
         if (!stopped) {

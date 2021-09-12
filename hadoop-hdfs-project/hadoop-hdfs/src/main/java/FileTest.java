@@ -1,5 +1,6 @@
 
 
+import java.io.FilterOutputStream;
 import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
@@ -30,8 +31,9 @@ public class FileTest {
 		 *  3）启动Data Streamer
 		 *  4）开启续约的线程
 		 */
+		//TODO fsous 是 HdfsDataOutputStream
 		FSDataOutputStream fsous = fileSystem.create(new Path("/user.txt"));
-		//TODO HdfsDataOutputStream
+		// FilterOutputStream#write > FSDataOutputStream#write > FSOutputSummer#write()
 		fsous.write("fdsafdsafdsafs".getBytes());
 	}
 }

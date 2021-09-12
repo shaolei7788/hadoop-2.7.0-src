@@ -75,18 +75,20 @@ public class Cluster {
     this(null, conf);
   }
 
-  public Cluster(InetSocketAddress jobTrackAddr, Configuration conf) throws IOException {
+  public Cluster(InetSocketAddress jobTrackAddr, Configuration conf) 
+      throws IOException {
     this.conf = conf;
     this.ugi = UserGroupInformation.getCurrentUser();
     initialize(jobTrackAddr, conf);
   }
   
-  private void initialize(InetSocketAddress jobTrackAddr, Configuration conf) throws IOException {
+  private void initialize(InetSocketAddress jobTrackAddr, Configuration conf)
+      throws IOException {
 
     synchronized (frameworkLoader) {
-      //YarnClientProtocolProvider
       for (ClientProtocolProvider provider : frameworkLoader) {
-        LOG.debug("Trying ClientProtocolProvider : " + provider.getClass().getName());
+        LOG.debug("Trying ClientProtocolProvider : "
+            + provider.getClass().getName());
         ClientProtocol clientProtocol = null; 
         try {
           if (jobTrackAddr == null) {
@@ -98,7 +100,8 @@ public class Cluster {
           if (clientProtocol != null) {
             clientProtocolProvider = provider;
             client = clientProtocol;
-            LOG.debug("Picked " + provider.getClass().getName() + " as the ClientProtocolProvider");
+            LOG.debug("Picked " + provider.getClass().getName()
+                + " as the ClientProtocolProvider");
             break;
           }
           else {

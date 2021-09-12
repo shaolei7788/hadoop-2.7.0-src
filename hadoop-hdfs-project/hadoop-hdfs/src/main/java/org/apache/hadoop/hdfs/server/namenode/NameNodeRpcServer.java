@@ -710,8 +710,7 @@ class NameNodeRpcServer implements NamenodeProtocols {
      * 2） 修改了目录树
      * 3） 存储元数据信息
      */
-    LocatedBlock locatedBlock = namesystem.getAdditionalBlock(src, fileId,
-        clientName, previous, excludedNodesSet, favoredNodesList);
+    LocatedBlock locatedBlock = namesystem.getAdditionalBlock(src, fileId, clientName, previous, excludedNodesSet, favoredNodesList);
     if (locatedBlock != null)
       metrics.incrAddBlockOps();
     return locatedBlock;

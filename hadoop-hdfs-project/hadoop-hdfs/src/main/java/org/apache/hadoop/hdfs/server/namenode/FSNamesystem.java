@@ -2636,8 +2636,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       //对于我们来说，契约这个概念不需要掌握。
       //我知识感觉他在管理契约的时候，一些架构设计，一些代码的设计，还设计得不错。
       //Lease这个单词的意思就是契约的意思。
-      leaseManager.addLease(newNode.getFileUnderConstructionFeature()
-          .getClientName(), src);
+      leaseManager.addLease(newNode.getFileUnderConstructionFeature().getClientName(), src);
 
       // Set encryption attributes if necessary
       if (feInfo != null) {
@@ -2969,13 +2968,11 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
         // period, then start lease recovery.
         //
         if (lease.expiredSoftLimit()) {
-          LOG.info("startFile: recover " + lease + ", src=" + src + " client "
-              + clientName);
+          LOG.info("startFile: recover " + lease + ", src=" + src + " client " + clientName);
           boolean isClosed = internalReleaseLease(lease, src, iip, null);
           if(!isClosed)
             throw new RecoveryInProgressException(
-                op.getExceptionMessage(src, holder, clientMachine,
-                    "lease recovery is in progress. Try again later."));
+                op.getExceptionMessage(src, holder, clientMachine, "lease recovery is in progress. Try again later."));
         } else {
           final BlockInfoContiguous lastBlock = file.getLastBlock();
           if (lastBlock != null
@@ -3183,7 +3180,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       commitOrCompleteLastBlock(pendingFile, fileState.iip,
                                 ExtendedBlock.getLocalBlock(previous));
 
-      // allocate new block, record block locations in INode.
+      //todo allocate new block, record block locations in INode.
       newBlock = createNewBlock();
       INodesInPath inodesInPath = INodesInPath.fromINode(pendingFile);
       //TODO  修改了内存里面的目录树（修改内存里面的元数据信息）
@@ -3332,10 +3329,8 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     return new FileState(pendingFile, src, iip);
   }
 
-  LocatedBlock makeLocatedBlock(Block blk, DatanodeStorageInfo[] locs,
-                                        long offset) throws IOException {
-    LocatedBlock lBlk = new LocatedBlock(
-        getExtendedBlock(blk), locs, offset, false);
+  LocatedBlock makeLocatedBlock(Block blk, DatanodeStorageInfo[] locs, long offset) throws IOException {
+    LocatedBlock lBlk = new LocatedBlock(getExtendedBlock(blk), locs, offset, false);
     getBlockManager().setBlockToken(lBlk, BlockTokenSecretManager.AccessMode.WRITE);
     return lBlk;
   }

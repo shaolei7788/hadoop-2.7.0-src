@@ -34,7 +34,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
 /** A section of an input file.  Returned by {@link
- * InputFormat getSplits(JobContext)} and passed to
+ * InputFormat#getSplits(JobContext)} and passed to
  * {@link InputFormat#createRecordReader(InputSplit,TaskAttemptContext)}. */
 @InterfaceAudience.Public
 @InterfaceStability.Stable

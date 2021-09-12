@@ -98,10 +98,6 @@ import org.apache.hadoop.yarn.webapp.util.WebAppUtils;
 import com.google.common.annotations.VisibleForTesting;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-/**
- * 管理Yarn 中一个app的执行状态的一个EventHandler
- * 也可以把这个RMAppImpl 理解成是一个状态机
- */
 public class RMAppImpl implements RMApp, Recoverable {
 
   private static final Log LOG = LogFactory.getLog(RMAppImpl.class);

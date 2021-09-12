@@ -56,13 +56,16 @@ public class ApplicationMasterLauncher extends AbstractService implements
     super.serviceStart();
   }
   
-  protected Runnable createRunnableLauncher(RMAppAttempt application, AMLauncherEventType event) {
-    Runnable launcher = new AMLauncher(context, application, event, getConfig());
+  protected Runnable createRunnableLauncher(RMAppAttempt application, 
+      AMLauncherEventType event) {
+    Runnable launcher =
+        new AMLauncher(context, application, event, getConfig());
     return launcher;
   }
   
   private void launch(RMAppAttempt application) {
-    Runnable launcher = createRunnableLauncher(application, AMLauncherEventType.LAUNCH);
+    Runnable launcher = createRunnableLauncher(application, 
+        AMLauncherEventType.LAUNCH);
     masterEvents.add(launcher);
   }
   

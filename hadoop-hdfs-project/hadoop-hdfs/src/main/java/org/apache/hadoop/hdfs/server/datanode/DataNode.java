@@ -1227,8 +1227,7 @@ public class DataNode extends ReconfigurableBase
     // Create the ReadaheadPool from the DataNode context so we can
     // exit without having to explicitly shutdown its thread pool.
     readaheadPool = ReadaheadPool.getInstance();
-    saslClient = new SaslDataTransferClient(dnConf.conf, 
-        dnConf.saslPropsResolver, dnConf.trustedChannelResolver);
+    saslClient = new SaslDataTransferClient(dnConf.conf, dnConf.saslPropsResolver, dnConf.trustedChannelResolver);
     saslServer = new SaslDataTransferServer(dnConf, blockPoolTokenSecretManager);
   }
 
@@ -2360,34 +2359,29 @@ public class DataNode extends ReconfigurableBase
     }
     Collection<StorageLocation> dataLocations = getStorageLocations(conf);
     UserGroupInformation.setConfiguration(conf);
-    SecurityUtil.login(conf, DFS_DATANODE_KEYTAB_FILE_KEY,
-        DFS_DATANODE_KERBEROS_PRINCIPAL_KEY);
+    SecurityUtil.login(conf, DFS_DATANODE_KEYTAB_FILE_KEY, DFS_DATANODE_KERBEROS_PRINCIPAL_KEY);
     //TODO 重要的代码
     return makeInstance(dataLocations, conf, resources);
   }
 
   public static List<StorageLocation> getStorageLocations(Configuration conf) {
-    Collection<String> rawLocations =
-        conf.getTrimmedStringCollection(DFS_DATANODE_DATA_DIR_KEY);
-    List<StorageLocation> locations =
-        new ArrayList<StorageLocation>(rawLocations.size());
+    //获取datanode存储数据的路径
+    Collection<String> rawLocations = conf.getTrimmedStringCollection(DFS_DATANODE_DATA_DIR_KEY);
+    List<StorageLocation> locations = new ArrayList<StorageLocation>(rawLocations.size());
 
     for(String locationString : rawLocations) {
       final StorageLocation location;
       try {
         location = StorageLocation.parse(locationString);
       } catch (IOException ioe) {
-        LOG.error("Failed to initialize storage directory " + locationString
-            + ". Exception details: " + ioe);
+        LOG.error("Failed to initialize storage directory " + locationString + ". Exception details: " + ioe);
         // Ignore the exception.
         continue;
       } catch (SecurityException se) {
-        LOG.error("Failed to initialize storage directory " + locationString
-                     + ". Exception details: " + se);
+        LOG.error("Failed to initialize storage directory " + locationString + ". Exception details: " + se);
         // Ignore the exception.
         continue;
       }
-
       locations.add(location);
     }
 
@@ -2408,13 +2402,11 @@ public class DataNode extends ReconfigurableBase
    */
   @VisibleForTesting
   @InterfaceAudience.Private
-  public static DataNode createDataNode(String args[], Configuration conf,
-      SecureResources resources) throws IOException {
+  public static DataNode createDataNode(String args[], Configuration conf, SecureResources resources) throws IOException {
     //TODO 实例化DataNode
     DataNode dn = instantiateDataNode(args, conf, resources);
     if (dn != null) {
-      //TODO 启动DataNode后台线程
-      //重要
+      //TODO 启动DataNode 的一些服务
       dn.runDatanodeDaemon();
     }
     return dn;
@@ -2470,8 +2462,7 @@ public class DataNode extends ReconfigurableBase
       Configuration conf, SecureResources resources) throws IOException {
     LocalFileSystem localFS = FileSystem.getLocal(conf);
     FsPermission permission = new FsPermission(
-        conf.get(DFS_DATANODE_DATA_DIR_PERMISSION_KEY,
-                 DFS_DATANODE_DATA_DIR_PERMISSION_DEFAULT));
+        conf.get(DFS_DATANODE_DATA_DIR_PERMISSION_KEY, DFS_DATANODE_DATA_DIR_PERMISSION_DEFAULT));
     DataNodeDiskChecker dataNodeDiskChecker = new DataNodeDiskChecker(permission);
     List<StorageLocation> locations = checkStorageLocations(dataDirs, localFS, dataNodeDiskChecker);
     DefaultMetricsSystem.initialize("DataNode");
@@ -2590,7 +2581,6 @@ public class DataNode extends ReconfigurableBase
     int errorCode = 0;
     try {
       StringUtils.startupShutdownMessage(DataNode.class, args, LOG);
-
       //TODO 初始化DataNode
       DataNode datanode = createDataNode(args, null, resources);
       if (datanode != null) {

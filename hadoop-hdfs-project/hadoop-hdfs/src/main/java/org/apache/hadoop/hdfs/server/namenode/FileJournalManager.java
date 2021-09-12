@@ -86,10 +86,11 @@ public class FileJournalManager implements JournalManager {
     this.conf = conf;
     this.sd = sd;
     this.errorReporter = errorReporter;
+
     //在这儿初始化的时候可配置的，应该是读取core-site.xml  hdfs-site.xml
     outputBufferCapacity = conf.getInt(
-            DFSConfigKeys.DFS_NAMENODE_BUFFER_VALUE_KEY,
-            DFSConfigKeys.DFS_NAMENODE_BUFFER_VALUE_DEFALUT_KEY);
+            DFSConfigKeys.DFS_NAMENODE_BUFFER_KEY,
+            DFSConfigKeys.DFS_NAMENODE_BUFFER_VALUE_DEFALUT);
 
   }
 

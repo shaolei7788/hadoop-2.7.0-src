@@ -47,8 +47,8 @@ public class FSDataOutputStream extends DataOutputStream
     }
 
     public void write(int b) throws IOException {
-       //TODO  out就是DFSOutputStream
-      //这个地方就是看大家的面向对象知识是否充足了
+      //TODO  out就是 DFSOutputStream  DFSOutputStream 是 FSOutputSummer 的实现
+      // 这个地方就是看大家的面向对象知识是否充足了
       out.write(b);
       position++;
       if (statistics != null) {

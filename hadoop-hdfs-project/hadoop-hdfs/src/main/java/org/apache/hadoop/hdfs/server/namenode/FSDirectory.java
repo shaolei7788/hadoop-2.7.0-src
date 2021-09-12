@@ -397,8 +397,7 @@ public class FSDirectory implements Closeable {
 
   private static INodeFile newINodeFile(long id, PermissionStatus permissions,
       long mtime, long atime, short replication, long preferredBlockSize) {
-    return newINodeFile(id, permissions, mtime, atime, replication,
-        preferredBlockSize, (byte)0);
+    return newINodeFile(id, permissions, mtime, atime, replication, preferredBlockSize, (byte)0);
   }
 
   private static INodeFile newINodeFile(long id, PermissionStatus permissions,
@@ -421,8 +420,7 @@ public class FSDirectory implements Closeable {
 
     long modTime = now();
     //TODO 创建一个INodeFile
-    INodeFile newNode = newINodeFile(allocateNewInodeId(), permissions, modTime,
-        modTime, replication, preferredBlockSize);
+    INodeFile newNode = newINodeFile(allocateNewInodeId(), permissions, modTime, modTime, replication, preferredBlockSize);
     newNode.setLocalName(localName.getBytes(Charsets.UTF_8));
     newNode.toUnderConstruction(clientName, clientMachine);
 

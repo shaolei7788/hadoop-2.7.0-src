@@ -1249,12 +1249,14 @@ public class Job extends JobContextImpl implements JobContext {
     }   
   }
 
-  private synchronized void connect() throws IOException, InterruptedException, ClassNotFoundException {
+  private synchronized void connect()
+          throws IOException, InterruptedException, ClassNotFoundException {
     if (cluster == null) {
       cluster = 
         ugi.doAs(new PrivilegedExceptionAction<Cluster>() {
-                   public Cluster run() throws IOException, InterruptedException, ClassNotFoundException {
-                     //todo 集群对象
+                   public Cluster run()
+                          throws IOException, InterruptedException, 
+                                 ClassNotFoundException {
                      return new Cluster(getConfiguration());
                    }
                  });
@@ -1275,20 +1277,16 @@ public class Job extends JobContextImpl implements JobContext {
    * Submit the job to the cluster and return immediately.
    * @throws IOException
    */
-  public void submit() throws IOException, InterruptedException, ClassNotFoundException {
-    //DEFINE SUCCESS FINISH FAILURE
+  public void submit() 
+         throws IOException, InterruptedException, ClassNotFoundException {
     ensureState(JobState.DEFINE);
-    //todo 启用新api
-    // 2.x 都是newapi mapreduce.xxxx 普通类
-    // 1.x 都是oldapi mapred.xxx 很多都是接口
     setUseNewAPI();
-    //连接集群 yarn集群
-    //客户端连接ResourceManager
     connect();
-    final JobSubmitter submitter = getJobSubmitter(cluster.getFileSystem(), cluster.getClient());
+    final JobSubmitter submitter = 
+        getJobSubmitter(cluster.getFileSystem(), cluster.getClient());
     status = ugi.doAs(new PrivilegedExceptionAction<JobStatus>() {
-      public JobStatus run() throws IOException, InterruptedException, ClassNotFoundException {
-        //todo 提交任务
+      public JobStatus run() throws IOException, InterruptedException, 
+      ClassNotFoundException {
         return submitter.submitJobInternal(Job.this, cluster);
       }
     });
@@ -1303,15 +1301,13 @@ public class Job extends JobContextImpl implements JobContext {
    * @throws IOException thrown if the communication with the 
    *         <code>JobTracker</code> is lost
    */
-  public boolean waitForCompletion(boolean verbose) throws IOException, InterruptedException,
+  public boolean waitForCompletion(boolean verbose
+                                   ) throws IOException, InterruptedException,
                                             ClassNotFoundException {
     if (state == JobState.DEFINE) {
-      //todo 提交
-      //DEFINE SUCCESS FINISH FAILURE
       submit();
     }
     if (verbose) {
-      //监控 打印任务信息
       monitorAndPrintJob();
     } else {
       // get the completion poll interval from the client.

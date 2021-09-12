@@ -287,7 +287,6 @@ public class ResourceMgrDelegate extends YarnClient {
   public ApplicationId
       submitApplication(ApplicationSubmissionContext appContext)
           throws YarnException, IOException {
-    //client = YarnClientImpl
     return client.submitApplication(appContext);
   }
 
@@ -300,7 +299,6 @@ public class ResourceMgrDelegate extends YarnClient {
   @Override
   public ApplicationReport getApplicationReport(ApplicationId appId)
       throws YarnException, IOException {
-    //client YarnClientImpl
     return client.getApplicationReport(appId);
   }
 

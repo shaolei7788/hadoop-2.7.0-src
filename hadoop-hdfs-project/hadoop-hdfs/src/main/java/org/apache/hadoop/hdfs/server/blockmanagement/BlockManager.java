@@ -1552,8 +1552,7 @@ public class BlockManager {
       final long blocksize,
       final List<String> favoredNodes,
       final byte storagePolicyID) throws IOException {
-    List<DatanodeDescriptor> favoredDatanodeDescriptors = 
-        getDatanodeDescriptors(favoredNodes);
+    List<DatanodeDescriptor> favoredDatanodeDescriptors = getDatanodeDescriptors(favoredNodes);
     final BlockStoragePolicy storagePolicy = storagePolicySuite.getPolicy(storagePolicyID);
     //TODO 根据block的放置的策略
     //我们不用看源码里面的方法我们都知道，肯定是需要根据负载均衡的思想
@@ -1563,8 +1562,6 @@ public class BlockManager {
      * block1_0: hadoop5:50010
      * block1_1: hadoop2:50010
      * block1_2: hadoop3:50010
-     *
-     *
      */
     final DatanodeStorageInfo[] targets = blockplacement.chooseTarget(src,
         numOfReplicas, client, excludedNodes, blocksize, 

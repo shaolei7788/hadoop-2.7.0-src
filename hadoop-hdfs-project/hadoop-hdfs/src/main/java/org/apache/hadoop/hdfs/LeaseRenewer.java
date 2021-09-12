@@ -293,23 +293,20 @@ class LeaseRenewer {
           public void run() {
             try {
               if (LOG.isDebugEnabled()) {
-                LOG.debug("Lease renewer daemon for " + clientsString()
-                    + " with renew id " + id + " started");
+                LOG.debug("Lease renewer daemon for " + clientsString() + " with renew id " + id + " started");
               }
-              //LeaseRenewer  就是进行契约续约的
+              //LeaseRenewer  就是进行契约续约
               LeaseRenewer.this.run(id);
             } catch(InterruptedException e) {
               if (LOG.isDebugEnabled()) {
-                LOG.debug(LeaseRenewer.this.getClass().getSimpleName()
-                    + " is interrupted.", e);
+                LOG.debug(LeaseRenewer.this.getClass().getSimpleName() + " is interrupted.", e);
               }
             } finally {
               synchronized(LeaseRenewer.this) {
                 Factory.INSTANCE.remove(LeaseRenewer.this);
               }
               if (LOG.isDebugEnabled()) {
-                LOG.debug("Lease renewer daemon for " + clientsString()
-                    + " with renew id " + id + " exited");
+                LOG.debug("Lease renewer daemon for " + clientsString() + " with renew id " + id + " exited");
               }
             }
           }
@@ -319,6 +316,8 @@ class LeaseRenewer {
             return String.valueOf(LeaseRenewer.this);
           }
         });
+
+
         daemon.start();
       }
       dfsc.putFileBeingWritten(inodeId, out);
@@ -419,8 +418,7 @@ class LeaseRenewer {
     	  //TODO 重点代码
         if (!c.renewLease()) {
           if (LOG.isDebugEnabled()) {
-            LOG.debug("Did not renew lease for client " +
-                c);
+            LOG.debug("Did not renew lease for client " + c);
           }
           continue;
         }
@@ -440,23 +438,21 @@ class LeaseRenewer {
 	  //for(int i=0;i< 10;i++)
 	  //代码就是每隔1秒就会检查
 
-    //for的性能要比while循环好一些
+    //for的性能要比while循环好一些  getSleepPeriod() = 1s
     for(long lastRenewed = Time.monotonicNow(); !Thread.interrupted();Thread.sleep(getSleepPeriod())) {
     	//当前时间 -  上一次续约的时间
       final long elapsed = Time.monotonicNow() - lastRenewed;
       //如果已经超过30秒没有进行续约
       if (elapsed >= getRenewalTime()) {
         try {
-        	//就进行续约
+          //todo 就进行续约
           renew();
           if (LOG.isDebugEnabled()) {
-            LOG.debug("Lease renewer daemon for " + clientsString()
-                + " with renew id " + id + " executed");
+            LOG.debug("Lease renewer daemon for " + clientsString() + " with renew id " + id + " executed");
           }
           lastRenewed = Time.monotonicNow();
         } catch (SocketTimeoutException ie) {
-          LOG.warn("Failed to renew lease for " + clientsString() + " for "
-              + (elapsed/1000) + " seconds.  Aborting ...", ie);
+          LOG.warn("Failed to renew lease for " + clientsString() + " for " + (elapsed/1000) + " seconds.  Aborting ...", ie);
           synchronized (this) {
             while (!dfsclients.isEmpty()) {
               dfsclients.get(0).abort();

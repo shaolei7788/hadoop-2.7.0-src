@@ -188,7 +188,6 @@ public class ApplicationClientProtocolPBClientImpl implements ApplicationClientP
     GetApplicationReportRequestProto requestProto =
         ((GetApplicationReportRequestPBImpl) request).getProto();
     try {
-      //todo 任务提交
       return new GetApplicationReportResponsePBImpl(proxy.getApplicationReport(
         null, requestProto));
     } catch (ServiceException e) {

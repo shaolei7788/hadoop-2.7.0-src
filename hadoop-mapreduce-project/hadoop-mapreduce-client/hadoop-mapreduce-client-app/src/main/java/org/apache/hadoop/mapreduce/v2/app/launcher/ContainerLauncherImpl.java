@@ -103,8 +103,6 @@ public class ContainerLauncherImpl extends AbstractService implements
     PREP, FAILED, RUNNING, DONE, KILLED_BEFORE_LAUNCH
   }
 
-  //todo 封装了CPU、Memory等资源的一个容器
-  // 是一个任务运行环境的抽象。
   private class Container {
     private ContainerState state;
     // store enough information to be able to cleanup the container
